@@ -31,20 +31,20 @@
 ## Array
 ## 1. Two Sum
 >Given an array of integers, return indices of the two numbers such that they add up to a specific target.
-
+>
 >You may assume that each input would have exactly one solution, and you may not use the same element twice.
-
+>
 >Example:
-
+>
 >Given nums = [2, 7, 11, 15], target = 9,
-
+>
 >Because nums[0] + nums[1] = 2 + 7 = 9,
 >return [0, 1].
 ##### Discussion
 >K-sum的題目基本上是送分題，幾乎都是靠sorting+two pointers搞定，3-sum的題目是算出是否有3個數的合加起來為target，方法為先把所有數字做sorting，再用two pointer降維
-
+>
 >舉例來說，[1,2,3,5,7] target為11，可以知道[1,3,7]是解
-
+>
 >所以目標變成先把1往左邊擺，再從[2,3,5,7]做2-sum
 
 
@@ -73,9 +73,9 @@ class Solution(object):
 
 ## 15. 3 Sum
 >Given an array nums of n integers, are there elements a, b, c in nums such that a + b + c = 0? Find all unique triplets in the array which gives the sum of zero
-
+>
 >**Note:**
-
+>
 >The solution set must not contain duplicate triplets.
 
 ```
@@ -89,11 +89,9 @@ A solution set is:
 ```
 ##### Discussion
 > 如剛剛說的，3 sum可以透過two pointers退化為2 sum，但是這題有個麻煩的點在於它不能重複
-
-
+> 
 > 且測資明確的告訴你input array有可能重複
-
-
+> 
 > 所以除了原先的降維外，需要多考慮
 - 做為target的值如果一樣則重複
 - 做為left的值如果一樣則重複
@@ -129,3 +127,50 @@ class Solution(object):
 - 這樣的寫法只贏過60%的人
 - Pattern很常見要熟記 ```if i != 0 and n == nums[i-1]:```
 - 可以只跑len(nums)-2次
+
+## 16. 3Sum Closest
+
+> Given an array nums of n integers and an integer target, find three integers in nums such that the sum is closest to target. Return the sum of the three integers. 
+>
+> You may assume that each input would have exactly one solution.
+
+```
+Given array nums = [-1, 2, 1, -4], and target = 1.
+
+The sum that is closest to the target is 2. (-1 + 2 + 1 = 2).
+```
+##### Discussion
+> 基本上3 sum closest是完全一樣的套路，差別只有需要記錄目前最佳值，用nums[:3]，比亂選個magic number還好
+
+```python
+class Solution(object):
+    def threeSumClosest(self, nums, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: int
+        """
+        nums = sorted(nums)
+        length, best = len(nums), sum(nums[:3])
+        for i, n in enumerate(nums[:-2]):
+            j, k = i+1, length-1
+            while j < k:
+                total = nums[i] + nums[j] + nums[k]
+                
+                if total == target:
+                    return target
+                elif total < target:
+                    j += 1
+                else:
+                    k -= 1
+                if abs(target - total) < abs(target - best):
+                    best = total
+                    
+        return best
+```
+>高手表示
+```
+I think the insight is something like this - Given an array and a brute force algorithm that seems waaay too slow (n^3), try to think of ways that we could get it to n^2, nlogn, n. If the given array problem is the type of a problem where order/index doesn't matter, always consider sorting the array. Once you've got it sorted, you have a great heuristic to use to iterate over the array.
+
+If you've gotten to that point, and are wondering how to traverse the array, 1, 2, 3+ pointers is always something that should be at the top of your list of things to consider when tackling an unfamiliar problem.
+```
