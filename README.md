@@ -269,3 +269,59 @@ class Solution(object):
             d[total] = d[total] + 1 if total in d else 1
         return count
 ```
+
+## 523. Continuous Subarray Sum
+
+> Given a list of non-negative numbers and a target integer k, write a function to check if the array has a
+> 
+> continuous subarray of size at least 2 that sums up to a multiple of k, that is, sums up to n*k where n is 
+> 
+> also an integer.
+```
+Input: [23, 2, 4, 6, 7],  k=6
+Output: True
+Explanation: Because [2, 4] is a continuous subarray of size 2 and sums up to 6.
+```
+```
+Input: [23, 2, 6, 4, 7],  k=6
+Output: True
+Explanation: Because [23, 2, 6, 4, 7] is an continuous subarray of size 5 and sums up to 42.
+```
+##### Discussion
+> 剛剛的變化題型，一樣是找到n[x:i]是否為k的倍數，根據剛剛的秘訣
+> 
+> 也就是n[0:x]使得n[0:i] - n[0:x]為k的倍數，也就代表n[0:x] % k == n[0:i] % k
+> 
+> 由於total % k的值也只有k種，所以記錄下每種total % k的值最早的index以確保subarray size至少是2
+> 
+> 但是corner case太多，通常面試不會出
+
+##### Solution (Runtime: 184 ms, faster than 96.04%)
+```python
+class Solution(object):
+    def checkSubarraySum(self, nums, k):
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: bool
+        """
+        # 00 always correct
+        if len(nums) > 1 and any(nums[i] == 0 and nums[i+1] == 0 for i in xrange(len(nums)-1)):
+            return True
+        
+        if not nums or k == 0: 
+			return False
+            
+        d, total = {nums[0]%k:0}, nums[0]
+        for i, n in enumerate(nums[1:], 1):
+            total += n
+            pivot = total % k
+            # Need to prevent n itself is k's multiple
+            if (pivot in d and i-d[pivot]>1) or pivot == 0 :
+                return True
+			# But KK is valid answer
+            if pivot not in d:
+                d[pivot] = i
+               
+        return False
+```
