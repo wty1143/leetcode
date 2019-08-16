@@ -31,7 +31,7 @@
 - Recursion
 
 ## Array
-## 1. Two Sum
+## 1. Two Sum (Easy)
 >Given an array of integers, return indices of the two numbers such that they add up to a specific target.
 >
 >You may assume that each input would have exactly one solution, and you may not use the same element twice.
@@ -73,7 +73,7 @@ class Solution(object):
             d[n] = i
 ```
 
-## 15. 3 Sum
+## 15. 3 Sum (Medium)
 >Given an array nums of n integers, are there elements a, b, c in nums such that a + b + c = 0? Find all unique triplets in the array which gives the sum of zero
 >
 >**Note:**
@@ -130,7 +130,7 @@ class Solution(object):
 - Pattern很常見要熟記 ```if i != 0 and n == nums[i-1]:```
 - 可以只跑len(nums)-2次
 
-## 16. 3Sum Closest
+## 16. 3Sum Closest (Medium)
 
 > Given an array nums of n integers and an integer target, find three integers in nums such that the sum is closest to target. Return the sum of the three integers. 
 >
@@ -177,7 +177,8 @@ I think the insight is something like this - Given an array and a brute force al
 If you've gotten to that point, and are wondering how to traverse the array, 1, 2, 3+ pointers is always something that should be at the top of your list of things to consider when tackling an unfamiliar problem.
 ```
 
-## 560. Subarray Sum Equals K
+## 560. Subarray Sum Equals K (Medium)
+
 >Given an array of integers and an integer k, you need to find the total number of continuous subarrays whose 
 >
 >sum equals to k.
@@ -270,7 +271,7 @@ class Solution(object):
         return count
 ```
 
-## 523. Continuous Subarray Sum
+## 523. Continuous Subarray Sum (Medium)
 
 > Given a list of non-negative numbers and a target integer k, write a function to check if the array has a
 > 
