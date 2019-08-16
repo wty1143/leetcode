@@ -319,7 +319,7 @@ class Solution(object):
             # Need to prevent n itself is k's multiple
             if (pivot in d and i-d[pivot]>1) or pivot == 0 :
                 return True
-			# But KK is valid answer
+            # But KK is valid answer
             if pivot not in d:
                 d[pivot] = i
                
