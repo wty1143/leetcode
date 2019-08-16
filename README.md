@@ -4,6 +4,8 @@
 
 ## Topic
 - [**Array**](#Array)
+	- Tip1: Two pointer for sorted array (1. Two Sum)
+	- Tip2: Sum[i:j] = Sum[0:j] - Sum[0:i] for continuous array (560. Subarray Sum Equals K)
 - Hash Table
 - Linked List
 - Math
@@ -173,4 +175,97 @@ class Solution(object):
 I think the insight is something like this - Given an array and a brute force algorithm that seems waaay too slow (n^3), try to think of ways that we could get it to n^2, nlogn, n. If the given array problem is the type of a problem where order/index doesn't matter, always consider sorting the array. Once you've got it sorted, you have a great heuristic to use to iterate over the array.
 
 If you've gotten to that point, and are wondering how to traverse the array, 1, 2, 3+ pointers is always something that should be at the top of your list of things to consider when tackling an unfamiliar problem.
+```
+
+## 560. Subarray Sum Equals K
+>Given an array of integers and an integer k, you need to find the total number of continuous subarrays whose 
+>
+>sum equals to k.
+>
+```
+Input:nums = [1,1,1], k = 2
+Output: 2
+```
+##### Discussion
+> 這類型的題目，如果暴力法很簡單，基本上要一定要先試試看暴力法，一來是讓面試官至少知道你懂題目，也讓他有機會救你
+>
+> 或是有機會基於最初的暴力法做出優化
+>
+> **這題使用的技巧必須熟記，Sum[i:j] = Sum[0:j] - Sum[0:i]**
+
+##### Solution (暴力解 63 / 80 test cases passed.)
+```python
+class Solution(object):
+    def subarraySum(self, nums, k):
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: int
+        """
+        count = 0
+        length = len(nums)
+        for i in xrange(length):
+            total = 0
+            for j in xrange(i, length):
+                total += nums[j]
+                if total == k:
+                    count += 1       
+        return count
+```
+> 但O(N^2)明顯的不夠好，有機會降到O(N)嗎?
+> 
+> Double pointer看起來行不通，因為不是sorted，而且解答要求連續
+>
+> 所以看到連續array，需要降低複雜度，請一定想到```Sum[i:j] = Sum[0:j] - Sum[0:i]```
+> 
+> 以這題來說，nums[0:1], nums[1:2]都是我們要的答案，nums[0:1]簡單，掃過一次就能算出
+> 
+> 但是nums[1:2]我們原本只能用雙層for loop從i=1累加，但是我們知道nums[1:2] = nums[0:2] - nums[0:1]
+> 
+> 換句話說只要我們可以找到任何nums[0:x]剛好等於nums[0:i]-k，那就代表nums[x:i]必為k
+> 
+> 則我們的答案次數即可+1
+> 
+> 因此我用了dictionary，把nums[0:i]的值與出線的次數都記錄下來，之後當到nums[0:i]時，只要看之前有幾次nums[0:i]-k
+> 
+> 累加上去即可，但是要注意這個可能做法會漏了nums[0:i] = k的機會，所以在中間補上
+##### Solution (Runtime: 88 ms, faster than 90.01%)
+```
+class Solution(object):
+    def subarraySum(self, nums, k):
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: int
+        """
+        count, total = 0, 0
+        length = len(nums)
+        d = {}
+        for i in xrange(length):
+            total += nums[i]
+            if total-k in d:
+                count += d[total-k]
+            if total == k:
+                count += 1
+            d[total] = d[total] + 1 if total in d else 1
+        return count
+```
+>高手表示，只要把d[0]的數量先給1，這樣就解決了 (Runtime: 80 ms, faster than 99.33%)
+```
+class Solution(object):
+    def subarraySum(self, nums, k):
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: int
+        """
+        count, total = 0, 0
+        length = len(nums)
+        d = {0:1}
+        for n in nums:
+            total += n
+            if total-k in d:
+                count += d[total-k]
+            d[total] = d[total] + 1 if total in d else 1
+        return count
 ```
