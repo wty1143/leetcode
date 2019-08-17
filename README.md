@@ -327,7 +327,7 @@ class Solution(object):
         return False
 ```
 ## <a name="dp"></a>Dynamic Programming
-#
+
 >You are given coins of different denominations and a total amount of money amount. Write a function to compute
 >
 > the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by
@@ -338,4 +338,151 @@ class Solution(object):
 Input: coins = [1, 2, 5], amount = 11
 Output: 3 
 Explanation: 11 = 5 + 5 + 1
+```
+##### Discussion
+> 題意相當清楚，就是給你幾個面額，試著用最少的coin去湊出target，這應該很直覺得會想用最大的面額先去湊，剩下的再用小面額試試看，
+> 
+> 所以剛開始用的是DFS，以上面的例子也就是先試試看5*2，剩下的1變成了子問題，但這個方法最慘的狀況需要O(S^N)，也果然如預料的吃了
+> 
+> TLE，leetcode通常這類型的題目有兩個做法，要嘛就是DFS+Prune，不然就是換做法，而這做法八成是DP
+> 
+> 因此不死心的我還是用了直覺的DFS開始
+
+#####Solution: (TLE in 31/182，也就是說是個超爛的做法)
+```python
+class Solution(object):
+    
+    def dfs(self, index, coins, amount, current_count):
+        
+        if amount == 0:
+            self.current_best = min(self.current_best, current_count)
+            return
+        
+        if  index == len(coins):
+            return
+        
+        coin = coins[index]
+        
+        max_coin = amount/coin
+        for i in xrange(max_coin, -1, -1): 
+            self.dfs(index+1, coins, amount-coin*i, current_count+i)
+
+        return
+        
+    def coinChange(self, coins, amount):
+        """
+        :type coins: List[int]
+        :type amount: int
+        :rtype: int
+        """
+        if amount == 0:
+            return 0
+        coins = filter(lambda c: c<=amount, coins)
+        if not coins:
+            return -1
+            
+        coins = sorted(coins, reverse=True)
+        self.current_best = amount+1
+        self.dfs(0, coins, amount, 0)
+        
+        if self.current_best != amount+1:
+            return self.current_best 
+        return -1
+```
+> 於是開始想著，如果今天這個amount沒有很大呢(雖然題目沒說)，是不是有機會像是爬格子這樣，每個數字看看有沒有辦法用最小的次數湊
+> 
+> 到，這樣時間複雜度就變成O(S*N)了，偷偷去看解答發現還真的這麼爛，所以這題應該是要補上例如S <= 10000之類的比較好
+
+#####Solution: (Runtime: 784 ms, faster than 86.82%)
+```python
+class Solution(object):
+    
+    def coinChange(self, coins, amount):
+        """
+        :type coins: List[int]
+        :type amount: int
+        :rtype: int
+        """
+        
+        
+        if amount == 0:
+            return 0
+        
+        coins = filter(lambda c: c <= amount, coins)
+        if not coins:
+            return -1
+        
+        start = max(coins)
+        dp = [-1] * (amount+1)
+        dp[0] = 0
+        
+        for i in xrange(amount+1):
+            min_count = -1
+            for coin in coins:
+                if dp[i-coin] != -1:
+                    if dp[i] == -1 or dp[i] > dp[i-coin]+1:
+                        dp[i] = dp[i-coin]+1 
+        
+        return dp[amount] if dp[amount] != -1 else -1
+```
+
+> 不死心的想看看能不能Prune更多，用DFS解
+>
+> 於是...想到了，如果目前最佳解是3次，而目前已經用掉1次，也就是只剩下2個coin要湊滿剩下的amount
+> 
+> 我們假設剩下的coin是2，也就是說它最多只能剩amount為4
+> 
+> 也就是說如果剩餘amount > 4的部份可以直接省略，可以注意到for loop是由大到小，所以條件達到後就可以break了
+> 
+> 因此補上後得到了爆炸性的成長，所以嚴格說起來這並不能說是DP，應該也要算是DFS
+> 
+> 但是這個一個一個湊的做法，是[經典的問題](https://www.geeksforgeeks.org/0-1-knapsack-problem-dp-10/)，要記下
+> 
+> 如果今天題目給出的target有限制，那八成就是用這招了
+
+#####Solution: (Runtime: 180 ms, faster than 97.60%)
+```python
+class Solution(object):
+    
+    def dfs(self, index, coins, amount, current_count):
+        
+        if amount == 0:
+            self.current_best = min(self.current_best, current_count)
+            return
+        
+        if  index == len(coins):
+            return
+        
+        coin = coins[index]
+        
+        max_coin = amount/coin
+        for i in xrange(max_coin, -1, -1):
+            
+            # No hope since even if you use all the coins, you can not reach target amount
+            if amount > coin * (self.current_best - current_count):
+                break
+                
+            self.dfs(index+1, coins, amount-coin*i, current_count+i)
+
+        return
+        
+    def coinChange(self, coins, amount):
+        """
+        :type coins: List[int]
+        :type amount: int
+        :rtype: int
+        """
+        if amount == 0:
+            return 0
+        coins = filter(lambda c: c<=amount, coins)
+        if not coins:
+            return -1
+            
+        coins = sorted(coins, reverse=True)
+        self.current_best = amount+1
+        self.dfs(0, coins, amount, 0)
+        
+        if self.current_best != amount+1:
+            return self.current_best 
+        return -1
 ```
