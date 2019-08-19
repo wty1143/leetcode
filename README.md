@@ -1,11 +1,12 @@
 # Leetcode Note #
 
 ---
-
+## Tips
+- Tip1: Two pointer for sorted array (#Array 1. Two Sum)
+- Tip2: Sum[i:j] = Sum[0:j] - Sum[0:i] for continuous array (# Array 560. Subarray Sum Equals K)
+- Tip3: Knapsack Problem (0/1, unbounded) (#DP 322. Coin Change)
 ## Topic
 - [**Array**](#Array)
-	- Tip1: Two pointer for sorted array (1. Two Sum)
-	- Tip2: Sum[i:j] = Sum[0:j] - Sum[0:i] for continuous array (560. Subarray Sum Equals K)
 - Hash Table
 - Linked List
 - Math
@@ -311,7 +312,7 @@ class Solution(object):
             return True
         
         if not nums or k == 0: 
-			return False
+            return False
             
         d, total = {nums[0]%k:0}, nums[0]
         for i, n in enumerate(nums[1:], 1):
@@ -327,8 +328,8 @@ class Solution(object):
         return False
 ```
 ## <a name="dp"></a>Dynamic Programming
-## 322. Coin Change
->You are given coins of different denominations and a total amount of money amount. Write a function to compute
+## 322. Coin Change (Medium)
+> You are given coins of different denominations and a total amount of money amount. Write a function to compute
 >
 > the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by
 > 
@@ -348,7 +349,7 @@ Explanation: 11 = 5 + 5 + 1
 > 
 > 因此不死心的我還是用了直覺的DFS開始
 
-#####Solution: (TLE in 31/182，也就是說是個超爛的做法)
+##### Solution: (TLE in 31/182，也就是說是個超爛的做法)
 ```python
 class Solution(object):
     
@@ -393,7 +394,7 @@ class Solution(object):
 > 
 > 到，這樣時間複雜度就變成O(S*N)了，偷偷去看解答發現還真的這麼爛，所以這題應該是要補上例如S <= 10000之類的比較好
 
-#####Solution: (Runtime: 784 ms, faster than 86.82%)
+##### Solution: (Runtime: 784 ms, faster than 86.82%)
 ```python
 class Solution(object):
     
@@ -436,11 +437,11 @@ class Solution(object):
 > 
 > 因此補上後得到了爆炸性的成長，所以嚴格說起來這並不能說是DP，應該也要算是DFS
 > 
-> 但是這個一個一個湊的做法，是[經典的問題](https://www.geeksforgeeks.org/0-1-knapsack-problem-dp-10/)，要記下
+> 但是這個一個一個湊的做法，是經典的[Unbounded 背包客問題](https://www.geeksforgeeks.org/unbounded-knapsack-repetition-items-allowed)的**簡化版**，要記下
 > 
 > 如果今天題目給出的target有限制，那八成就是用這招了
 
-#####Solution: (Runtime: 180 ms, faster than 97.60%)
+##### Solution: (Runtime: 180 ms, faster than 97.60%)
 ```python
 class Solution(object):
     
@@ -450,7 +451,7 @@ class Solution(object):
             self.current_best = min(self.current_best, current_count)
             return
         
-        if  index == len(coins):
+        if index == len(coins):
             return
         
         coin = coins[index]
@@ -485,4 +486,101 @@ class Solution(object):
         if self.current_best != amount+1:
             return self.current_best 
         return -1
+```
+## 983. Minimum Cost For Tickets (Medium)
+> In a country popular for train travel, you have planned some train travelling one year in advance.  The days of
+>
+> the year that you will travel is given as an array days.  Each day is an integer from 1 to 365.
+
+> Train tickets are sold in 3 different ways:
+
+> a 1-day pass is sold for costs[0] dollars;
+> a 7-day pass is sold for costs[1] dollars;
+> a 30-day pass is sold for costs[2] dollars.
+>
+> The passes allow that many days of consecutive travel.  For example, if we get a 7-day pass on day 2, then we can
+>  travel for 7 days: day 2, 3, 4, 5, 6, 7, and 8.
+
+> Return the minimum number of dollars you need to travel every day in the given list of days.
+
+##### Discussion
+> 這題應該也算是背包客問題的纇題，但除了要最少的價錢外，他還有幾天是不需要付錢的，這讓題目多了點難度
+> 
+> 於是我套用了背包客公式，基本上應該是天數在第一層 for loop，cost在第二層，**試著往回用過去的答案來更新現在**
+> 
+> 但如果沒有列入days的那幾天呢
+> 
+> 想像中這幾天就是不用付錢，所以理論上可以拿前一天花的錢當作這一天的，所以dp[n] = dp[n-1] if 不需要搭車
+> 
+> **除此之外針對每一個需要搭火車的日子，都是著往後面更新，讓後面的天數花的錢更少** <= 如果這樣做就會浪費超多時間
+> 
+> 應該是每次只要往回看N天前來更新今天就好，這才是背包客公式
+
+##### Solution (Runtime: 104 ms, faster than 5.31%，真是個垃圾方法...)
+```python
+class Solution(object):
+    def mincostTickets(self, days, costs):
+        """
+        :type days: List[int]
+        :type costs: List[int]
+        :rtype: int
+        """
+        if not days:
+            return 0
+
+        last_day = days[-1]
+        durations = [1,7,30]
+        active_days = {d:True for d in days}
+        
+        dp = [costs[0] * len(days)] * (last_day+31)
+        dp[0] = 0
+
+        for day in xrange(1, last_day+1):
+            if day not in active_days:
+                dp[day] = dp[day-1]
+            
+            dp[day] = min(dp[day], dp[day-1]+costs[0])
+            for n in range(7):
+                dp[day+n] = min(dp[day+n], dp[day-1]+costs[1])
+                
+            for n in range(30):
+                dp[day+n] = min(dp[day+n], dp[day-1]+costs[2])
+                
+            #for i, cost in enumerate(costs):
+            #    duration = durations[i]
+            #    for n in xrange(duration):
+            #        dp[day+n] = min(dp[day+n], dp[day-1]+cost)
+        
+        return dp[last_day]
+```
+
+> 用了正統的方式後
+
+##### Solution (Runtime: 24 ms, faster than 91.24%)
+
+```python
+class Solution(object):
+    def mincostTickets(self, days, costs):
+        """
+        :type days: List[int]
+        :type costs: List[int]
+        :rtype: int
+        """
+        if not days:
+            return 0
+        
+        last_day = days[-1]
+        durations = [1,7,30]
+        active_days = {d:True for d in days}
+        
+        dp = [costs[0] * len(days)] * (last_day+31)
+        dp[0] = 0
+        
+        for day in xrange(1, last_day+1):
+            if day not in active_days:
+                dp[day] = dp[day-1]
+            
+            dp[day] = min(dp[day], dp[day-1]+costs[0], dp[max(day-7, 0)]+costs[1], dp[max(day-30, 0)]+costs[2])
+        
+        return dp[last_day]
 ```
