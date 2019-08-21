@@ -327,6 +327,88 @@ class Solution(object):
                
         return False
 ```
+## 4. Median of Two Sorted Arrays (Medium)
+> There are two sorted arrays nums1 and nums2 of size m and n respectively.
+>
+> Find the median of the two sorted arrays. The overall run time complexity should be O(log (m+n)).
+>
+> You may assume nums1 and nums2 cannot be both empty.
+
+**Example 1:**
+```
+nums1 = [1, 3]
+nums2 = [2]
+
+The median is 2.0
+```
+##### Discussion
+> 這題相當單純，2個sorted array找中位數，最笨的方法是把兩個array相加，sorting後找中間
+> 數，這作法需要O(NlogN)，但題目是two sorted array，所以可以改用O(N)變成一個sorted array，這樣明顯都到太慢，應該是O(logN)就可以解決
+> 
+> 也就是需要O(logN)找到第K大的數
+> 
+> 方法如下，
+> [1, 2, 7]
+> [5, 6, 9] 
+> 接下來針對上面的array，可以切分為4種:
+> 
+> [{} | 1, 2, 7], [1 | 2, 7], [1, 2 | 7], [1, 2, 7 | {}]
+> 
+> 因為我們要第4小的數，當我們的一刀切在idx的位置，那也代表下面的array必須切到k-idx
+> 舉例來說
+> 
+> [1       | 2, 7]
+> [5, 6, 9 |     ]  但是9 > 2，代表這刀太左邊了應該往右
+>
+> [1, 2 | 7]
+> [5, 6 | 9]  <----- 2 < 9 and 6 < 7符合題意
+> 自此binary search完成
+```python
+class Solution(object):
+    def get_k_smallest_by_binary_search(self, nums1, nums2, k):
+            
+        if len(nums1) > len(nums2):
+            nums1, nums2 = nums2, nums1
+        if len(nums1) == 0:
+            return nums2[k-1]
+             
+        left, right = max(0, k-len(nums2)), min(len(nums1), k)
+        
+        while True:
+            idx1 = (left+right)/2
+            idx2 = k-idx1
+            #print idx1, idx2, k
+            cond1 = (idx1 == len(nums1) or idx2 == 0 or nums1[idx1] >= nums2[idx2-1])
+            cond2 = (idx2 == len(nums2) or idx1 == 0 or nums1[idx1-1] <= nums2[idx2])
+            
+            if cond1 and cond2:
+                if idx1 == 0:
+                    return nums2[k-1]
+                if idx2 == 0:
+                    return nums1[k-1]
+                return max(nums2[idx2-1], nums1[idx1-1])
+            elif cond1:
+                right = idx1 - 1
+            elif cond2:
+                left = idx1 + 1
+            else:
+                assert 0
+        assert 0
+        
+    def findMedianSortedArrays(self, nums1, nums2):
+        """
+        :type nums1: List[int]
+        :type nums2: List[int]
+        :rtype: float
+        """
+        total = len(nums1) + len(nums2)
+        if total % 2 == 0:
+            median1 = float(self.get_k_smallest_by_binary_search(nums1, nums2, total/2))
+            median2 = float(self.get_k_smallest_by_binary_search(nums1, nums2, total/2+1))
+            return (median1+median2)/2
+        else:
+            return float(self.get_k_smallest_by_binary_search(nums1, nums2, total/2+1))
+```
 ## <a name="dp"></a>Dynamic Programming
 ## 322. Coin Change (Medium)
 > You are given coins of different denominations and a total amount of money amount. Write a function to compute
