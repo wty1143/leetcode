@@ -5,6 +5,10 @@
 - Tip1: Two pointer for sorted array (#Array 1. Two Sum)
 - Tip2: Sum[i:j] = Sum[0:j] - Sum[0:i] for continuous array (# Array 560. Subarray Sum Equals K)
 - Tip3: Knapsack Problem (0/1, unbounded) (#DP 322. Coin Change)
+
+## Trick
+- Trick1: When accessing minus index, but you want to get a default value in 0, you can use **dp[max(day-7, 0)]+costs[1]**
+
 ## Topic
 - [**Array**](#Array)
 - Hash Table
@@ -528,6 +532,8 @@ In total you spent $11 and covered all the days of your travel.
 > **除此之外針對每一個需要搭火車的日子，都是著往後面更新，讓後面的天數花的錢更少** <= 如果這樣做就會浪費超多時間
 > 
 > 應該是每次只要往回看N天前來更新今天就好，這才是背包客公式
+> 
+> Trick: dp[max(day-7, 0)]+costs[1] <- 相當pythonic的寫法，可以記下來
 
 ##### Solution (Runtime: 104 ms, faster than 5.31%，真是個垃圾方法...)
 ```python
