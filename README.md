@@ -14,7 +14,7 @@
 - Hash Table
 - Linked List
 - Math
-- Two Pointers
+- [**Two Pointers**](#double_pointers)
 - String
 - Binary Search
 - Divide and Conquer
@@ -413,6 +413,53 @@ class Solution(object):
         else:
             return float(self.get_k_smallest_by_binary_search(nums1, nums2, total/2+1))
 ```
+## <a name="double_pointers"></a>Double Pointers
+## 11. Container With Most Water
+> Given n non-negative integers a1, a2, ..., an , where each represents a point at coordinate (i, ai). n vertical
+> lines are drawn such that the two endpoints of line i is at (i, ai) and (i, 0). Find two lines, which together 
+> with x-axis forms a container, such that the container contains the most water.
+
+![](https://s3-lc-upload.s3.amazonaws.com/uploads/2018/07/17/question_11.jpg)
+
+##### Discussion
+> 經典的Double pointer，一般來說這類型的題目會用while loop，讓左邊右邊一起往中間逼近，舉例來說
+```python
+while l < r:
+	if xxx:
+		return 
+	elif nums[l]:
+		l += 1
+	else
+		r -= 1
+```
+> 這題是要算最大存水空間，我們假設左邊這時選到了10右邊選到了3，這時我們的總蓄水為(10-3) * min(10, 3)
+> 這時如果移動10，一定不會有更好的結果，因為高度最多為還是3，但是(10-3)變成了(9-3)
+> 所以我們取而代之的從將小的那邊往中間推進
+> 這題的關鍵在於要想到中間的蓄水量是由 min(nums[l], nums[r]) * (r-l)
+
+##### Solution 
+```pythnon
+class Solution(object):
+    def maxArea(self, height):
+        """
+        :type height: List[int]
+        :rtype: int
+        """
+        ans = 0
+        l, r = 0, len(height)-1
+        
+        while l < r:
+            left, right = height[l], height[r]
+            
+            ans = max(ans, min(left, right) * (r-l))
+            if left < right:
+                l += 1
+            else:
+                r -= 1
+                
+        return ans
+```
+
 ## <a name="dp"></a>Dynamic Programming
 ## 322. Coin Change (Medium)
 > You are given coins of different denominations and a total amount of money amount. Write a function to compute
