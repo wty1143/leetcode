@@ -1,3 +1,4 @@
+
 # Leetcode Note #
 
 ---
@@ -36,17 +37,25 @@
 - Recursion
 
 ## Array
-## 1. Two Sum (Easy)
->Given an array of integers, return indices of the two numbers such that they add up to a specific target.
->
->You may assume that each input would have exactly one solution, and you may not use the same element twice.
->
->Example:
->
->Given nums = [2, 7, 11, 15], target = 9,
->
->Because nums[0] + nums[1] = 2 + 7 = 9,
->return [0, 1].
+
+### [1\. Two Sum](https://leetcode.com/problems/two-sum/)
+
+Difficulty: **Easy**
+
+
+Given an array of integers, return **indices** of the two numbers such that they add up to a specific target.
+
+You may assume that each input would have **_exactly_** one solution, and you may not use the _same_ element twice.
+
+**Example:**
+
+```
+Given nums = [2, 7, 11, 15], target = 9,
+
+Because nums[0] + nums[1] = 2 + 7 = 9,
+return [0, 1].
+```
+
 ##### Discussion
 >K-sum的題目基本上是送分題，幾乎都是靠sorting+two pointers搞定，3-sum的題目是算出是否有3個數的合加起來為target，方法為先把所有數字做sorting，再用two pointer降維
 >
@@ -78,12 +87,18 @@ class Solution(object):
             d[n] = i
 ```
 
-## 15. 3 Sum (Medium)
->Given an array nums of n integers, are there elements a, b, c in nums such that a + b + c = 0? Find all unique triplets in the array which gives the sum of zero
->
->**Note:**
->
->The solution set must not contain duplicate triplets.
+### [15\. 3Sum](https://leetcode.com/problems/3sum/)
+
+Difficulty: **Medium**
+
+
+Given an array `nums` of _n_ integers, are there elements _a_, _b_, _c_ in `nums` such that _a_ + _b_ + _c_ = 0? Find all unique triplets in the array which gives the sum of zero.
+
+**Note:**
+
+The solution set must not contain duplicate triplets.
+
+**Example:**
 
 ```
 Given array nums = [-1, 0, 1, 2, -1, -4],
@@ -135,16 +150,35 @@ class Solution(object):
 - Pattern很常見要熟記 ```if i != 0 and n == nums[i-1]:```
 - 可以只跑len(nums)-2次
 
-## 16. 3Sum Closest (Medium)
+### [16\. 3Sum Closest](https://leetcode.com/problems/3sum-closest/)
 
-> Given an array nums of n integers and an integer target, find three integers in nums such that the sum is closest to target. Return the sum of the three integers. 
->
-> You may assume that each input would have exactly one solution.
+Difficulty: **Medium**
+
+
+Given an array `nums` of _n_ integers and an integer `target`, find three integers in `nums` such that the sum is closest to `target`. Return the sum of the three integers. You may assume that each input would have exactly one solution.
+
+**Example:**
 
 ```
 Given array nums = [-1, 2, 1, -4], and target = 1.
 
-The sum that is closest to the target is 2. (-1 + 2 + 1 = 2).
+The sum that is closest to the target is 2\. (-1 + 2 + 1 = 2).
+```
+
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def threeSumClosest(self, nums, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: int
+        """
+        
 ```
 ##### Discussion
 > 基本上3 sum closest是完全一樣的套路，差別只有需要記錄目前最佳值，用nums[:3]，比亂選個magic number還好
@@ -182,16 +216,25 @@ I think the insight is something like this - Given an array and a brute force al
 If you've gotten to that point, and are wondering how to traverse the array, 1, 2, 3+ pointers is always something that should be at the top of your list of things to consider when tackling an unfamiliar problem.
 ```
 
-## 560. Subarray Sum Equals K (Medium)
+### [560\. Subarray Sum Equals K](https://leetcode.com/problems/subarray-sum-equals-k/)
 
->Given an array of integers and an integer k, you need to find the total number of continuous subarrays whose 
->
->sum equals to k.
->
+Difficulty: **Medium**
+
+
+Given an array of integers and an integer **k**, you need to find the total number of continuous subarrays whose sum equals to **k**.
+
+**Example 1:**  
+
 ```
 Input:nums = [1,1,1], k = 2
 Output: 2
 ```
+
+**Note:**  
+
+1.  The length of the array is in range [1, 20,000].
+2.  The range of numbers in the array is [-1000, 1000] and the range of the integer **k** is [-1e7, 1e7].
+
 ##### Discussion
 > 這類型的題目，如果暴力法很簡單，基本上要一定要先試試看暴力法，一來是讓面試官至少知道你懂題目，也讓他有機會救你
 >
@@ -276,23 +319,34 @@ class Solution(object):
         return count
 ```
 
-## 523. Continuous Subarray Sum (Medium)
+### [523\. Continuous Subarray Sum](https://leetcode.com/problems/continuous-subarray-sum/)
 
-> Given a list of non-negative numbers and a target integer k, write a function to check if the array has a
-> 
-> continuous subarray of size at least 2 that sums up to a multiple of k, that is, sums up to n*k where n is 
-> 
-> also an integer.
+Difficulty: **Medium**
+
+
+Given a list of **non-negative** numbers and a target **integer** k, write a function to check if the array has a continuous subarray of size at least 2 that sums up to a multiple of **k**, that is, sums up to n*k where n is also an **integer**.
+
+**Example 1:**
+
 ```
 Input: [23, 2, 4, 6, 7],  k=6
 Output: True
 Explanation: Because [2, 4] is a continuous subarray of size 2 and sums up to 6.
 ```
+
+**Example 2:**
+
 ```
 Input: [23, 2, 6, 4, 7],  k=6
 Output: True
 Explanation: Because [23, 2, 6, 4, 7] is an continuous subarray of size 5 and sums up to 42.
 ```
+
+**Note:**
+
+1.  The length of the array won't exceed 10,000.
+2.  You may assume the sum of all the numbers is in the range of a signed 32-bit integer.
+
 ##### Discussion
 > 剛剛的變化題型，一樣是找到n[x:i]是否為k的倍數，根據剛剛的秘訣
 > 
@@ -331,19 +385,33 @@ class Solution(object):
                
         return False
 ```
-## 4. Median of Two Sorted Arrays (Medium)
-> There are two sorted arrays nums1 and nums2 of size m and n respectively.
->
-> Find the median of the two sorted arrays. The overall run time complexity should be O(log (m+n)).
->
-> You may assume nums1 and nums2 cannot be both empty.
+### [4\. Median of Two Sorted Arrays](https://leetcode.com/problems/median-of-two-sorted-arrays/)
+
+Difficulty: **Hard**
+
+
+There are two sorted arrays **nums1** and **nums2** of size m and n respectively.
+
+Find the median of the two sorted arrays. The overall run time complexity should be O(log (m+n)).
+
+You may assume **nums1** and **nums2** cannot be both empty.
 
 **Example 1:**
+
 ```
 nums1 = [1, 3]
 nums2 = [2]
 
 The median is 2.0
+```
+
+**Example 2:**
+
+```
+nums1 = [1, 2]
+nums2 = [3, 4]
+
+The median is (2 + 3)/2 = 2.5
 ```
 ##### Discussion
 > 這題相當單純，2個sorted array找中位數，最笨的方法是把兩個array相加，sorting後找中間
@@ -414,12 +482,24 @@ class Solution(object):
             return float(self.get_k_smallest_by_binary_search(nums1, nums2, total/2+1))
 ```
 ## <a name="double_pointers"></a>Double Pointers
-## 11. Container With Most Water
-> Given n non-negative integers a1, a2, ..., an , where each represents a point at coordinate (i, ai). n vertical
-> lines are drawn such that the two endpoints of line i is at (i, ai) and (i, 0). Find two lines, which together 
-> with x-axis forms a container, such that the container contains the most water.
+### [11\. Container With Most Water](https://leetcode.com/problems/container-with-most-water/)
+
+Difficulty: **Medium**
+
+
+Given _n_ non-negative integers _a<sub style="display: inline;">1</sub>_, _a<sub style="display: inline;">2</sub>_, ..., _a<sub style="display: inline;">n </sub>_, where each represents a point at coordinate (_i_, _a<sub style="display: inline;">i</sub>_). _n_ vertical lines are drawn such that the two endpoints of line _i_ is at (_i_, _a<sub style="display: inline;">i</sub>_) and (_i_, 0). Find two lines, which together with x-axis forms a container, such that the container contains the most water.
+
+**Note: **You may not slant the container and _n_ is at least 2.
 
 ![](https://s3-lc-upload.s3.amazonaws.com/uploads/2018/07/17/question_11.jpg)
+
+<small style="display: inline;">The above vertical lines are represented by array [1,8,6,2,5,4,8,3,7]. In this case, the max area of water (blue section) the container can contain is 49\.</small>
+
+**Example:**
+
+```
+Input: [1,8,6,2,5,4,8,3,7]
+Output: 49```
 
 ##### Discussion
 > 經典的Double pointer，一般來說這類型的題目會用while loop，讓左邊右邊一起往中間逼近，舉例來說
@@ -461,18 +541,30 @@ class Solution(object):
 ```
 
 ## <a name="dp"></a>Dynamic Programming
-## 322. Coin Change (Medium)
-> You are given coins of different denominations and a total amount of money amount. Write a function to compute
->
-> the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by
-> 
-> any combination of the coins, return -1.
+### [322\. Coin Change](https://leetcode.com/problems/coin-change/)
+
+Difficulty: **Medium**
+
+
+You are given coins of different denominations and a total amount of money _amount_. Write a function to compute the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return `-1`.
+
+**Example 1:**
 
 ```
 Input: coins = [1, 2, 5], amount = 11
 Output: 3 
-Explanation: 11 = 5 + 5 + 1
+Explanation: 11 = 5 + 5 + 1```
+
+**Example 2:**
+
 ```
+Input: coins = [2], amount = 3
+Output: -1
+```
+
+**Note**:  
+You may assume that you have an infinite number of each kind of coin.
+
 ##### Discussion
 > 題意相當清楚，就是給你幾個面額，試著用最少的coin去湊出target，這應該很直覺得會想用最大的面額先去湊，剩下的再用小面額試試看，
 > 
@@ -620,25 +712,26 @@ class Solution(object):
             return self.current_best 
         return -1
 ```
-## 983. Minimum Cost For Tickets (Medium)
-> In a country popular for train travel, you have planned some train travelling one year in advance.  The days of
->
-> the year that you will travel is given as an array days.  Each day is an integer from 1 to 365.
+### [983\. Minimum Cost For Tickets](https://leetcode.com/problems/minimum-cost-for-tickets/)
 
-> Train tickets are sold in 3 different ways:
+Difficulty: **Medium**
 
-> a 1-day pass is sold for costs[0] dollars;
-> a 7-day pass is sold for costs[1] dollars;
-> a 30-day pass is sold for costs[2] dollars.
->
-> The passes allow that many days of consecutive travel.  For example, if we get a 7-day pass on day 2, then we can
->  travel for 7 days: day 2, 3, 4, 5, 6, 7, and 8.
 
-> Return the minimum number of dollars you need to travel every day in the given list of days.
+In a country popular for train travel, you have planned some train travelling one year in advance.  The days of the year that you will travel is given as an array `days`.  Each day is an integer from `1` to `365`.
+
+Train tickets are sold in 3 different ways:
+
+*   a 1-day pass is sold for `costs[0]` dollars;
+*   a 7-day pass is sold for `costs[1]` dollars;
+*   a 30-day pass is sold for `costs[2]` dollars.
+
+The passes allow that many days of consecutive travel.  For example, if we get a 7-day pass on day 2, then we can travel for 7 days: day 2, 3, 4, 5, 6, 7, and 8.
+
+Return the minimum number of dollars you need to travel every day in the given list of `days`.
+
+**Example 1:**
 
 ```
-Example 1:
-
 Input: days = [1,4,6,7,8,20], costs = [2,7,15]
 Output: 11
 Explanation: 
@@ -648,6 +741,28 @@ On day 3, you bought a 7-day pass for costs[1] = $7, which covered days 3, 4, ..
 On day 20, you bought a 1-day pass for costs[0] = $2, which covered day 20.
 In total you spent $11 and covered all the days of your travel.
 ```
+
+
+**Example 2:**
+
+```
+Input: days = [1,2,3,4,5,6,7,8,9,10,30,31], costs = [2,7,15]
+Output: 17
+Explanation: 
+For example, here is one way to buy passes that lets you travel your travel plan:
+On day 1, you bought a 30-day pass for costs[2] = $15 which covered days 1, 2, ..., 30.
+On day 31, you bought a 1-day pass for costs[0] = $2 which covered day 31.
+In total you spent $17 and covered all the days of your travel.
+```
+
+
+**Note:**
+
+1.  `1 <= days.length <= 365`
+2.  `1 <= days[i] <= 365`
+3.  `days` is in strictly increasing order.
+4.  `costs.length == 3`
+5.  `1 <= costs[i] <= 1000`
 
 ##### Discussion
 > 這題應該也算是背包客問題的纇題，但除了要最少的價錢外，他還有幾天是不需要付錢的，這讓題目多了點難度
