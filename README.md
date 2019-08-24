@@ -481,6 +481,100 @@ class Solution(object):
         else:
             return float(self.get_k_smallest_by_binary_search(nums1, nums2, total/2+1))
 ```
+
+### [26\. Remove Duplicates from Sorted Array](https://leetcode.com/problems/remove-duplicates-from-sorted-array/)
+
+Difficulty: **Easy**
+
+
+Given a sorted array _nums_, remove the duplicates such that each element appear only _once_ and return the new length.
+
+Do not allocate extra space for another array, you must do this by **modifying the input array** with O(1) extra memory.
+
+**Example 1:**
+
+```
+Given nums = [1,1,2],
+
+Your function should return length = 2, with the first two elements of nums being 1 and 2 respectively.
+
+It doesn't matter what you leave beyond the returned length.```
+
+**Example 2:**
+
+```
+Given nums = [0,0,1,1,1,2,2,3,3,4],
+
+Your function should return length = 5, with the first five elements of nums being modified to 0, 1, 2, 3, and 4 respectively.
+
+It doesn't matter what values are set beyond the returned length.
+```
+
+**Clarification:**
+
+Confused why the returned value is an integer but your answer is an array?
+
+Note that the input array is passed in by **reference**, which means modification to the input array will be known to the caller as well.
+
+Internally you can think of this:
+
+```
+// nums is passed in by reference. (i.e., without making a copy)
+int len = removeDuplicates(nums);
+
+// any modification to nums in your function would be known by the caller.
+// using the length returned by your function, it prints the first len elements.
+for (int i = 0; i < len; i++) {
+    print(nums[i]);
+}```
+
+##### Discussion
+> 原本的想法是留個一個slow pointer，只要發現新的就往回overwrite
+> 但是這個做法在大多數都沒重複的時候，會有很多次value assign
+> 參考了其他人的做法，用while loop，不失為一個好選擇
+
+##### Solution 1
+
+Language: **Python**
+```python
+class Solution(object):
+    def removeDuplicates(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        if not nums:
+            return
+        
+        current = 1
+        
+        for i in xrange(1, len(nums)):
+            if nums[i] != nums[i-1]:
+                nums[current] = nums[i]
+                current += 1
+        for i in xrange(len(nums)-current):
+            del nums[current]
+```
+
+##### Solution 2
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def removeDuplicates(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        i = 0
+        while i < len(nums):
+            if i >= 1 and nums[i] == nums[i-1]:
+                del nums[i]
+            else:
+                i+=1
+```
+
 ## <a name="double_pointers"></a>Double Pointers
 ### [11\. Container With Most Water](https://leetcode.com/problems/container-with-most-water/)
 
@@ -538,6 +632,58 @@ class Solution(object):
                 r -= 1
                 
         return ans
+```
+
+### [42\. Trapping Rain Water](https://leetcode.com/problems/trapping-rain-water/)
+
+Difficulty: **Hard**
+
+
+Given _n_ non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it is able to trap after raining.
+
+![](https://assets.leetcode.com/uploads/2018/10/22/rainwatertrap.png)  
+<small style="display: inline;">The above elevation map is represented by array [0,1,0,2,1,0,1,3,2,1,2,1]. In this case, 6 units of rain water (blue section) are being trapped. **Thanks Marcos** for contributing this image!</small>
+
+**Example:**
+
+```
+Input: [0,1,0,2,1,0,1,3,2,1,2,1]
+Output: 6```
+
+##### Discussion
+
+> 要解這題首先要像上一題一樣，了解任意取兩個邊界時，水容量是怎麼算的
+每個積水，都由右邊最大的值以及左邊最大的值兩者取較小的當作水位，並且要扣掉這一格本身的高度，舉例來說，這格本身的高度是2，左邊最高5，右邊最高7，那針對這一格就是min(5, 7) - 2 = 3個單位的積水，要得到左右的最大值，可以先用O(N)掃過一輪。
+
+##### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def trap(self, height):
+        """
+        :type height: List[int]
+        :rtype: int
+        """
+        ans = 0
+        
+        right, r_max = [], 0
+        left, l_max = [], 0
+        for i in xrange(len(height)):
+            right.append(r_max)
+            r_max = max(height[len(height)-i-1], r_max)
+            left.append(l_max)
+            l_max = max(height[i], l_max)
+            
+        right = right[::-1]
+        
+        for i in xrange(0, len(height)):
+            val = min(left[i], right[i])
+            if val > height[i]:
+                ans += val - height[i]
+        
+        return ans
 ```
 
 ## <a name="dp"></a>Dynamic Programming
