@@ -529,8 +529,8 @@ for (int i = 0; i < len; i++) {
 }```
 
 ##### Discussion
-> 原本的想法是留個一個slow pointer，只要發現新的就往回overwrite
-> 但是這個做法在大多數都沒重複的時候，會有很多次value assign
+> 原本的想法是留個一個slow pointer，只要發現新的就往回overwrite，
+> 但是這個做法在大多數都沒重複的時候，會有很多次value assign，因此
 > 參考了其他人的做法，用while loop，不失為一個好選擇
 
 ##### Solution 1
