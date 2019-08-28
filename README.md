@@ -684,7 +684,7 @@ for (int i = 0; i < len; i++) {
 }
 ```
 ##### Discussion
-這題跟上一題一了無心意，把條件從前一個變成前兩個而已
+這題跟上一題一了無新意，把條件從前一個變成前兩個而已
 
 #### Solution
 
@@ -1146,6 +1146,70 @@ class Solution(object):
                 left = mid + 1
             
         return False
+```
+
+### [153\. Find Minimum in Rotated Sorted Array](https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/)
+
+Difficulty: **Medium**
+
+
+Suppose an array sorted in ascending order is rotated at some pivot unknown to you beforehand.
+
+(i.e.,  `[0,1,2,4,5,6,7]` might become  `[4,5,6,7,0,1,2]`).
+
+Find the minimum element.
+
+You may assume no duplicate exists in the array.
+
+**Example 1:**
+
+```
+Input: [3,4,5,1,2] 
+Output: 1
+```
+
+**Example 2:**
+
+```
+Input: [4,5,6,7,0,1,2]
+Output: 0
+```
+##### Discussion
+這題也是sorted array的纇題
+最小值其實也就是pivot，這題想到的應該想要切一刀
+看看是不是pivot，不是就是往左或往右
+所以就拆成兩個部分
+1. 怎麼知道是不是pivot
+    - 可以用跟左邊的數比較得到，左邊的數一般都要小於自己除非你是pivot，這邊奸詐的利用了python -1是最右邊的特性
+2. 如果不是pivot要往左還是往右
+    - 如果最右邊的數比目前mid還大的話代表不在右側，應該往左
+    - 反之應該往右，舉例來說: 4 5 6 7 1 2 3，3 < 代表中間必定有pivot
+3. 這邊要很注意的是如果不幸的nums[mid] == nums[mid-1]，也就是當array size為1時，要額外判斷或是改成nums[mid] <= nums[mid-1]
+4. Binary search 請愛用while left <= right:
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def findMin(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        left, right = 0, len(nums)-1
+        while left <= right:
+            mid = (left+right)/2
+            if nums[mid] <= nums[mid-1]:
+                return  nums[mid]
+            elif nums[mid] > nums[right]:
+                left = mid + 1
+            else:
+                right = mid - 1
+        
+        assert 0
+        
 ```
 
 ## <a name="dp"></a>Dynamic Programming
