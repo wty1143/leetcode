@@ -17,7 +17,7 @@
 - Math
 - [**Two Pointers**](#double_pointers)
 - String
-- Binary Search
+- [**Binary Search**](#binary_search)
 - Divide and Conquer
 - [**Dynamic Programming**](#dp)
 - Backtracking
@@ -70,7 +70,7 @@ return [0, 1].
 >
 >這次的2-sum反而是特例，一般來說，2-sum在有sorting的前提下，應該是O(N)就能解決，但是本題並沒有說明是否為sorted，而sorting本身就需要O(NlogN)，反而不划算
 - 因此這次用的方式為hash
-##### Soution
+##### Solution
 ```python
 class Solution(object):
     def twoSum(self, nums, target):
@@ -164,24 +164,12 @@ Given array nums = [-1, 2, 1, -4], and target = 1.
 
 The sum that is closest to the target is 2\. (-1 + 2 + 1 = 2).
 ```
-
+##### Discussion
+> 基本上3 sum closest是完全一樣的套路，差別只有需要記錄目前最佳值，用nums[:3]，比亂選個magic number還好
 
 #### Solution
 
 Language: **Python**
-
-```python
-class Solution(object):
-    def threeSumClosest(self, nums, target):
-        """
-        :type nums: List[int]
-        :type target: int
-        :rtype: int
-        """
-        
-```
-##### Discussion
-> 基本上3 sum closest是完全一樣的套路，差別只有需要記錄目前最佳值，用nums[:3]，比亂選個magic number還好
 
 ```python
 class Solution(object):
@@ -216,6 +204,79 @@ I think the insight is something like this - Given an array and a brute force al
 If you've gotten to that point, and are wondering how to traverse the array, 1, 2, 3+ pointers is always something that should be at the top of your list of things to consider when tackling an unfamiliar problem.
 ```
 
+### [18\. 4Sum](https://leetcode.com/problems/4sum/)
+
+Difficulty: **Medium**
+
+
+Given an array `nums` of _n_ integers and an integer `target`, are there elements _a_, _b_, _c_, and _d_ in `nums` such that _a_ + _b_ + _c_ + _d_ = `target`? Find all unique quadruplets in the array which gives the sum of `target`.
+
+**Note:**
+
+The solution set must not contain duplicate quadruplets.
+
+**Example:**
+
+```
+Given array nums = [1, 0, -1, 0, -2, 2], and target = 0.
+
+A solution set is:
+[
+  [-1,  0, 0, 1],
+  [-2, -1, 1, 2],
+  [-2,  0, 0, 2]
+]
+```
+
+##### Discussion
+這三行去除重複
+1. if i != 0 and nums[i] == nums[i-1]: continue
+2. while left < right and nums[left] == c: left += 1
+3. while left < right and nums[right] == d: right -= 1
+
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def fourSum(self, nums, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: List[List[int]]
+        """
+        ans = []
+        
+        # a + b + c + d = target
+        nums = sorted(nums)
+        length = len(nums)
+        
+        for i in xrange(length-2):
+            if i != 0 and nums[i] == nums[i-1]: continue
+            for j in xrange(i+1, length):
+                if j != i + 1 and nums[j] == nums[j-1]:
+                    continue
+                    
+                a = nums[i]
+                b = nums[j]
+                
+                left, right = j+1, length-1
+                while left < right:
+                    c = nums[left]
+                    d = nums[right]
+                    if a + b + c + d == target:
+                        while left < right and nums[left] == c: left += 1
+                        while left < right and nums[right] == d: right -= 1
+                        ans.append([a, b, c, d])
+                    elif a + b + c + d < target:
+                        left += 1
+                    else:
+                        right -= 1
+        return ans
+```
+
 ### [560\. Subarray Sum Equals K](https://leetcode.com/problems/subarray-sum-equals-k/)
 
 Difficulty: **Medium**
@@ -242,7 +303,7 @@ Output: 2
 >
 > **這題使用的技巧必須熟記，Sum[i:j] = Sum[0:j] - Sum[0:i]**
 
-##### Solution (暴力解 63 / 80 test cases passed.)
+#### Solution (暴力解 63 / 80 test cases passed.)
 ```python
 class Solution(object):
     def subarraySum(self, nums, k):
@@ -278,7 +339,7 @@ class Solution(object):
 > 因此我用了dictionary，把nums[0:i]的值與出線的次數都記錄下來，之後當到nums[0:i]時，只要看之前有幾次nums[0:i]-k
 > 
 > 累加上去即可，但是要注意這個可能做法會漏了nums[0:i] = k的機會，所以在中間補上
-##### Solution (Runtime: 88 ms, faster than 90.01%)
+#### Solution (Runtime: 88 ms, faster than 90.01%)
 ```
 class Solution(object):
     def subarraySum(self, nums, k):
@@ -356,7 +417,7 @@ Explanation: Because [23, 2, 6, 4, 7] is an continuous subarray of size 5 and su
 > 
 > 但是corner case太多，通常面試不會出
 
-##### Solution (Runtime: 184 ms, faster than 96.04%)
+#### Solution (Runtime: 184 ms, faster than 96.04%)
 ```python
 class Solution(object):
     def checkSubarraySum(self, nums, k):
@@ -533,7 +594,7 @@ for (int i = 0; i < len; i++) {
 > 但是這個做法在大多數都沒重複的時候，會有很多次value assign，因此
 > 參考了其他人的做法，用while loop，不失為一個好選擇
 
-##### Solution 1
+#### Solution 1
 
 Language: **Python**
 ```python
@@ -556,7 +617,7 @@ class Solution(object):
             del nums[current]
 ```
 
-##### Solution 2
+#### Solution 2
 
 Language: **Python**
 
@@ -573,6 +634,225 @@ class Solution(object):
                 del nums[i]
             else:
                 i+=1
+```
+
+### [80\. Remove Duplicates from Sorted Array II](https://leetcode.com/problems/remove-duplicates-from-sorted-array-ii/)
+
+Difficulty: **Medium**
+
+
+Given a sorted array _nums_, remove the duplicates such that duplicates appeared at most _twice_ and return the new length.
+
+Do not allocate extra space for another array, you must do this by **modifying the input array** with O(1) extra memory.
+
+**Example 1:**
+
+```
+Given nums = [1,1,1,2,2,3],
+
+Your function should return length = 5, with the first five elements of nums being 1, 1, 2, 2 and 3 respectively.
+
+It doesn't matter what you leave beyond the returned length.
+```
+
+**Example 2:**
+
+```
+Given nums = [0,0,1,1,1,1,2,3,3],
+
+Your function should return length = 7, with the first seven elements of nums being modified to 0, 0, 1, 1, 2, 3 and 3 respectively.
+
+It doesn't matter what values are set beyond the returned length.
+```
+
+**Clarification:**
+
+Confused why the returned value is an integer but your answer is an array?
+
+Note that the input array is passed in by **reference**, which means modification to the input array will be known to the caller as well.
+
+Internally you can think of this:
+
+```
+// nums is passed in by reference. (i.e., without making a copy)
+int len = removeDuplicates(nums);
+
+// any modification to nums in your function would be known by the caller.
+// using the length returned by your function, it prints the first len elements.
+for (int i = 0; i < len; i++) {
+    print(nums[i]);
+}
+```
+##### Discussion
+這題跟上一題一了無心意，把條件從前一個變成前兩個而已
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def removeDuplicates(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        i = 0
+        while i < len(nums):
+            if i >= 2 and nums[i] == nums[i-1] and nums[i] == nums[i-2]:
+                del nums[i]
+            else:
+                i+=1
+                
+```
+
+### [27\. Remove Element](https://leetcode.com/problems/remove-element/)
+
+Difficulty: **Easy**
+
+
+Given an array _nums_ and a value _val_, remove all instances of that value and return the new length.
+
+Do not allocate extra space for another array, you must do this by **modifying the input array** with O(1) extra memory.
+
+The order of elements can be changed. It doesn't matter what you leave beyond the new length.
+
+**Example 1:**
+
+```
+Given nums = [3,2,2,3], val = 3,
+
+Your function should return length = 2, with the first two elements of nums being 2.
+
+It doesn't matter what you leave beyond the returned length.
+```
+
+**Example 2:**
+
+```
+Given nums = [0,1,2,2,3,0,4,2], val = 2,
+
+Your function should return length = 5, with the first five elements of nums containing 0, 1, 3, 0, and 4.
+
+Note that the order of those five elements can be arbitrary.
+
+It doesn't matter what values are set beyond the returned length.
+```
+
+**Clarification:**
+
+Confused why the returned value is an integer but your answer is an array?
+
+Note that the input array is passed in by **reference**, which means modification to the input array will be known to the caller as well.
+
+Internally you can think of this:
+
+```
+// nums is passed in by reference. (i.e., without making a copy)
+int len = removeElement(nums, val);
+
+// any modification to nums in your function would be known by the caller.
+// using the length returned by your function, it prints the first len elements.
+for (int i = 0; i < len; i++) {
+    print(nums[i]);
+}
+```
+
+##### Discussion
+這題可以用上一題的思路，把所有不是val的刪光光像是上面這樣
+也可以用two pointer，不停的往後換
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def removeElement(self, nums, val):
+        """
+        :type nums: List[int]
+        :type val: int
+        :rtype: int
+        """
+        #i = 0
+        #while i < len(nums):
+        #    if nums[i] == val:
+        #        del nums[i]
+        #    else:
+        #        i += 1
+        #return len(nums)
+        
+        i, n = 0, len(nums)-1
+        
+        while i <= n:
+            if nums[i] == val:
+                nums[i] = nums[n]
+                n -= 1
+            else:
+                i += 1
+        return i
+```
+
+### [31\. Next Permutation](https://leetcode.com/problems/next-permutation/)
+
+Difficulty: **Medium**
+
+
+Implement **next permutation**, which rearranges numbers into the lexicographically next greater permutation of numbers.
+
+If such arrangement is not possible, it must rearrange it as the lowest possible order (ie, sorted in ascending order).
+
+The replacement must be and use only constant extra memory.
+
+Here are some examples. Inputs are in the left-hand column and its corresponding outputs are in the right-hand column.
+
+`1,2,3` → `1,3,2`  
+`3,2,1` → `1,2,3`  
+`1,1,5` → `1,5,1`
+
+##### Discussion
+要解這題要先觀察一下1, 3, 2, 4, 5 -> 1, 3, 2, 5, 4 -> 1, 3, 4, 2, 5
+為什麼 1, 3, 2, 5, 4的下一個是 1, 3, 4, 2, 5呢? 因為從右邊往回推2遇到5了，也就是第一個開始遞減的數是關鍵
+這個數以左不需要動
+右邊則是要找下一個數，關鍵是右邊數列中最小的，也就是[5, 4]較小的，所以選擇4
+其餘的則按照大小sorting
+所以程式分兩部份
+1. 找到pivot
+2. 找到右邊的所有大於pivot的數中最小的當下一個pivot
+3. 將pivot與此數交換
+4. pivot右邊sorting排好
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def nextPermutation(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: None Do not return anything, modify nums in-place instead.
+        """
+        # 1, 3, 2, 4, 5 -> 1, 3, 2, 5, 4 -> 1, 3, 4, 2, 5
+        
+        if nums == sorted(nums, reverse=True):
+            nums.sort()
+            return
+        
+        i = len(nums)-1
+        while i > 0:
+            if nums[i-1] < nums[i]:
+                break
+            i -= 1
+        # i-1 is the pivot
+        nums[i:] = sorted(nums[i:])
+        
+        # find the one that larger then and closest pivot
+        for n in xrange(i, len(nums)):
+            if nums[n] > nums[i-1]:
+                nums[n], nums[i-1] = nums[i-1], nums[n]
+                break
+        
 ```
 
 ## <a name="double_pointers"></a>Double Pointers
@@ -611,7 +891,7 @@ while l < r:
 > 所以我們取而代之的從將小的那邊往中間推進
 > 這題的關鍵在於要想到中間的蓄水量是由 min(nums[l], nums[r]) * (r-l)
 
-##### Solution 
+#### Solution 
 ```pythnon
 class Solution(object):
     def maxArea(self, height):
@@ -684,6 +964,188 @@ class Solution(object):
                 ans += val - height[i]
         
         return ans
+```
+
+## <a name="binary_search"></a>Binary Search
+### [33\. Search in Rotated Sorted Array](https://leetcode.com/problems/search-in-rotated-sorted-array/)
+
+Difficulty: **Medium**
+
+
+Suppose an array sorted in ascending order is rotated at some pivot unknown to you beforehand.
+
+(i.e., `[0,1,2,4,5,6,7]` might become `[4,5,6,7,0,1,2]`).
+
+You are given a target value to search. If found in the array return its index, otherwise return `-1`.
+
+You may assume no duplicate exists in the array.
+
+Your algorithm's runtime complexity must be in the order of _O_(log _n_).
+
+**Example 1:**
+
+```
+Input: nums = [4,5,6,7,0,1,2], target = 0
+Output: 4
+```
+
+**Example 2:**
+
+```
+Input: nums = [4,5,6,7,0,1,2], target = 3
+Output: -1
+```
+
+##### Discussion
+Binary search的變形題，關鍵有兩個
+1. rotated sorted array從任何一方切一刀後，左右兩邊都還是rotated sorted
+2. 怎麼定義子問題
+
+也就是說我們只要知道這個數會出現在右邊還是左邊
+接下來就可以把大問題變成子問題，反正子問題還是符合題意
+
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def search(self, nums, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: int
+        """
+        left, right = 0, len(nums)-1
+        
+        # 3 4 5 6 7 1 2
+        # 7 1 2 3 4 5 6
+        # 4 5 6 7 1 2 3 
+        
+        while left <= right:
+            mid = (left) + (right-left)/2
+            
+            if nums[mid] == target:
+                return mid
+            if nums[left] == target:
+                return left
+            if nums[right] == target:
+                return right
+            
+            # left target mid -> left side
+            # target mid left -> left side
+            # target left mid -> right side
+            
+            if target < nums[mid]:
+                
+                if nums[left] < target:
+                    right = mid-1
+                else:
+                    if nums[left] < nums[mid]:
+                        left = mid + 1
+                    else:
+                        right = mid -1
+            else:
+                if nums[right] > target:
+                    left = mid + 1
+                else:
+                    if nums[mid] > nums[right]:
+                        left = mid + 1
+                    else:
+                        right = mid - 1
+            
+        
+        return -1
+    
+```
+
+### [81\. Search in Rotated Sorted Array II](https://leetcode.com/problems/search-in-rotated-sorted-array-ii/)
+
+Difficulty: **Medium**
+
+
+Suppose an array sorted in ascending order is rotated at some pivot unknown to you beforehand.
+
+(i.e., `[0,0,1,2,2,5,6]` might become `[2,5,6,0,0,1,2]`).
+
+You are given a target value to search. If found in the array return `true`, otherwise return `false`.
+
+**Example 1:**
+
+```
+Input: nums = [2,5,6,0,0,1,2], target = 0
+Output: true
+```
+
+**Example 2:**
+
+```
+Input: nums = [2,5,6,0,0,1,2], target = 3
+Output: false
+```
+
+**Follow up:**
+
+*   This is a follow up problem to , where `nums` may contain duplicates.
+*   Would this affect the run-time complexity? How and why?
+
+
+##### Discussion
+這題跟33一樣，差別只在於數列可以重複
+剛開始覺得複雜，其實只要遇到大小一樣的邊界就跳掉就好
+這樣會讓Time complexity飆高至O(N)
+不如return target in nums，也是O(N)
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def search(self, nums, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: bool
+        """
+        left, right = 0, len(nums)-1
+        
+        while left <= right:
+            
+            mid = (left+right)/2
+            
+            if nums[left] == target:
+                return True
+            if nums[mid] == target:
+                return True
+            if nums[right] == target:
+                return True
+            
+            if nums[left] == nums[right]:
+                left += 1
+                continue
+            if nums[left] == nums[mid]:
+                left = mid + 1
+                continue
+            if nums[mid] == nums[right]:
+                right = mid - 1
+                continue
+            
+            if nums[left] < target < nums[mid]:
+                right = mid - 1
+            elif target < nums[left] < nums[mid]:
+                left = mid + 1
+            elif target < nums[mid] < nums[left]:
+                right = mid -1
+            elif nums[mid] < target < nums[right]:
+                left = mid + 1
+            elif nums[mid] < nums[right] < target:
+                right = mid - 1
+            elif nums[right] < nums[mid] < target:
+                left = mid + 1
+            
+        return False
 ```
 
 ## <a name="dp"></a>Dynamic Programming
@@ -925,7 +1387,7 @@ In total you spent $17 and covered all the days of your travel.
 > 
 > Trick: dp[max(day-7, 0)]+costs[1] <- 相當pythonic的寫法，可以記下來
 
-##### Solution (Runtime: 104 ms, faster than 5.31%，真是個垃圾方法...)
+#### Solution (Runtime: 104 ms, faster than 5.31%，真是個垃圾方法...)
 ```python
 class Solution(object):
     def mincostTickets(self, days, costs):
@@ -965,7 +1427,7 @@ class Solution(object):
 
 > 用了正統的方式後
 
-##### Solution (Runtime: 24 ms, faster than 91.24%)
+#### Solution (Runtime: 24 ms, faster than 91.24%)
 
 ```python
 class Solution(object):
