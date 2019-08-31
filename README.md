@@ -1335,7 +1335,7 @@ index2則是離target最近但小於target的數
 [5,7,7,8,8,10]
 6
 這樣的測資下idx1 = 1, idx2 = 0
-按照提議return [-1, -1]
+按照題意 return [-1, -1]
 
 #### Solution
 
