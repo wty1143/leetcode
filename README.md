@@ -1212,6 +1212,212 @@ class Solution(object):
         
 ```
 
+### [154\. Find Minimum in Rotated Sorted Array II](https://leetcode.com/problems/find-minimum-in-rotated-sorted-array-ii/)
+
+Difficulty: **Hard**
+
+
+Suppose an array sorted in ascending order is rotated at some pivot unknown to you beforehand.
+
+(i.e.,  `[0,1,2,4,5,6,7]` might become  `[4,5,6,7,0,1,2]`).
+
+Find the minimum element.
+
+The array may contain duplicates.
+
+**Example 1:**
+
+```
+Input: [1,3,5]
+Output: 1
+```
+
+**Example 2:**
+
+```
+Input: [2,2,2,0,1]
+Output: 0
+```
+
+**Note:**
+
+*   This is a follow up problem to .
+*   Would allow duplicates affect the run-time complexity? How and why?
+
+##### Discussion
+這題是153的follow up
+這邊要記得的是binary search在遇到element有可能重複時
+這題就無法用O(logN)解
+舉例來說: 
+**11110111這種情況無論看mid left right都沒有辦法把某一邊除掉**
+所以是O(N)
+解法也相當作弊，勇敢的無恥的把重複的消掉即可
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def findMin(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        left, right = 0, len(nums)-1
+        
+        while left <= right:
+                
+            mid = (left+right)/2
+            
+            if nums[mid] == nums[right]:
+                right -= 1
+                continue
+            
+            if nums[mid] < nums[mid-1]:
+                return nums[mid]
+            
+            if nums[mid] < nums[right]:
+                right = mid-1
+            else:
+                left = mid+1
+                
+        return nums[mid]
+```
+
+### [34\. Find First and Last Position of Element in Sorted Array](https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/)
+
+Difficulty: **Medium**
+
+
+Given an array of integers `nums` sorted in ascending order, find the starting and ending position of a given `target` value.
+
+Your algorithm's runtime complexity must be in the order of _O_(log _n_).
+
+If the target is not found in the array, return `[-1, -1]`.
+
+**Example 1:**
+
+```
+Input: nums = [5,7,7,8,8,10], target = 8
+Output: [3,4]
+```
+
+**Example 2:**
+
+```
+Input: nums = [5,7,7,8,8,10], target = 6
+Output: [-1,-1]
+```
+
+##### Discussion
+經典的binary search有重複element尋找左右界的題目
+用了兩個binary search去找
+針對左界，就算找到了，也往左邊看看有沒有更左的解
+針對右界，就算找到了，也往右邊看看有沒有更右的解
+看起來比較醜但直觀
+
+Solution 2參考了高手的做法
+不需要一直更新index1, index2
+概念如下
+針對左界，如果發現target大於nums[mid]
+這很明顯的我們要的數在右邊
+但是針對等於或是小於，則是都往左邊繼續搜
+右界以此類推
+
+最終如果這個數有找到的話
+index1, index2分別會是左右界
+如果只有一個數被找到則index1 == index2
+但是如果完全找不到
+理論上index1會是離target最近但是大於target的數
+index2則是離target最近但小於target的數
+舉例來說
+[5,7,7,8,8,10]
+6
+這樣的測資下idx1 = 1, idx2 = 0
+按照提議return [-1, -1]
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def searchRange(self, nums, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: List[int]
+        """
+        left, right = 0, len(nums)-1
+        index1, index2 = -1, -1
+        while left <= right:
+            mid = (left + right)/2
+            
+            if nums[mid] == target:
+                index1 = mid
+                right = mid - 1
+            elif nums[mid] > target:
+                right = mid - 1
+            else:
+                left = mid + 1
+        
+        left, right = 0, len(nums)-1
+        
+        while left <= right:
+            mid = (left + right)/2
+            
+            if nums[mid] == target:
+                index2 = mid
+                left = mid + 1
+            elif nums[mid] > target:
+                right = mid - 1
+            else:
+                left = mid + 1
+        return [index1, index2]
+```
+
+#### Solution 2
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def searchRange(self, nums, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: List[int]
+        """
+        left, right = 0, len(nums)-1
+        
+        # 1 1 1 1 1
+        while left <= right:
+            mid = (left+right)/2
+            if nums[mid] < target:
+                left = mid + 1
+            else:
+                right = mid - 1
+        idx1 = left
+        
+        left, right = 0, len(nums)-1
+        while left <= right:
+            mid = (left+right)/2
+            if nums[mid] > target:
+                right = mid - 1
+            else:
+                left = mid + 1
+        idx2 = right
+        
+        if idx1 <= idx2:
+            return [idx1, idx2]
+        else:
+            return [-1,-1]
+            
+            
+            
+```
+
 ## <a name="dp"></a>Dynamic Programming
 ### [322\. Coin Change](https://leetcode.com/problems/coin-change/)
 
