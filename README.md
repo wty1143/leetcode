@@ -9,6 +9,7 @@
 - Tip4: backtrace or K sum remove duplicates
     - ```if i != 0 and n == nums[i-1]:```(#15. 3Sum)
     - ```if idx > start and nums[idx] == nums[idx-1]: continue```(#40. Combination Sum II)
+- Tip5: 鴿籠原理要記得，如果題目說要constant extra space，八成就是用input array + swap(#41. First Missing Positive)
 
 ## Trick
 - Trick1: When accessing minus index, but you want to get a default value in 0, you can use **dp[max(day-7, 0)]+costs[1]**
@@ -858,6 +859,96 @@ class Solution(object):
         
 ```
 
+### [41\. First Missing Positive](https://leetcode.com/problems/first-missing-positive/)
+
+Difficulty: **Hard**
+
+
+Given an unsorted integer array, find the smallest missing positive integer.
+
+**Example 1:**
+
+```
+Input: [1,2,0]
+Output: 3
+```
+
+**Example 2:**
+
+```
+Input: [3,4,-1,1]
+Output: 2
+```
+
+**Example 3:**
+
+```
+Input: [7,8,9,11,12]
+Output: 1
+```
+
+**Note:**
+
+Your algorithm should run in _O_(_n_) time and uses constant extra space.
+
+
+##### Discussion
+這題有3個重點，如何O(N) + constant extra space + 鴿籠原理\
+假設今天array當中的數，大於array本身的size，無論如何都放不近來才對\
+所以不用考慮他們\
+那接下來就是要把小於array本身size的數放到對的地方記錄\
+可以開另一個array，只要數小於array本身size，就把那個array對應的index設定為1\
+接下來只要掃那個array找第一個不是1的就是答案\
+但是這樣就不是constant extra space，**通常題目寫這句話就是要你用原本的array**\
+但是如果那個index本身就有小於array本身size的數怎麼辦\
+所以就用swap的，只有在條件符合i才會++\
+
+舉例來說\
+[3,4,7,2,1,2]
+size為4
+```
+i = 0: 3 -> swap(3,7), [7, 4, 3, 2, 1, 2]
+i = 0: 7 -> (7 > 5), i++
+i = 1: 4 -> swap(4,2), [7, 2, 3, 4, 1, 2]
+i = 1: 2 -> nums[2] == 2, i++
+i = 2: 3 -> nums[3] == 3, i++
+i = 3: 4 -> nums[4] == 4, i++
+i = 4: 1 -> swap(7,1), [1, 2, 3, 4, 7, 2]
+i = 4: 7 -> (7 > 5), i++
+i = 5: 2 -> nums[2] == 2, i++
+
+[1,2,3,4,7,2] -> ans = 5
+```
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def firstMissingPositive(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        if not nums: return 1
+        N = len(nums)
+        i = 0
+        
+        while i < N:
+            val = nums[i]
+            if 0 < val <= N and nums[val-1] != val:
+                nums[val-1], nums[i] = nums[i], nums[val-1]
+            else:
+                i += 1
+        
+        for i, n in enumerate(nums):
+            if n != i+1:
+                return i+1
+            
+        return n+1
+```
+
 ## <a name="double_pointers"></a>Double Pointers
 ### [11\. Container With Most Water](https://leetcode.com/problems/container-with-most-water/)
 
@@ -1314,31 +1405,31 @@ Output: [-1,-1]
 ```
 
 ##### Discussion
-經典的binary search有重複element尋找左右界的題目
-用了兩個binary search去找
-針對左界，就算找到了，也往左邊看看有沒有更左的解
-針對右界，就算找到了，也往右邊看看有沒有更右的解
-看起來比較醜但直觀
+經典的binary search有重複element尋找左右界的題目\
+用了兩個binary search去找\
+針對左界，就算找到了，也往左邊看看有沒有更左的解\
+針對右界，就算找到了，也往右邊看看有沒有更右的解\
+看起來比較醜但直觀\
 
-Solution 2參考了高手的做法
-不需要一直更新index1, index2
-概念如下
-針對左界，如果發現target大於nums[mid]
-這很明顯的我們要的數在右邊
-但是針對等於或是小於，則是都往左邊繼續搜
-右界以此類推
-
-最終如果這個數有找到的話
-index1, index2分別會是左右界
-如果只有一個數被找到則index1 == index2
-但是如果完全找不到
-理論上index1會是離target最近但是大於target的數
-index2則是離target最近但小於target的數
-舉例來說
-[5,7,7,8,8,10]
-6
-這樣的測資下idx1 = 1, idx2 = 0
-按照題意 return [-1, -1]
+Solution 2參考了高手的做法\
+不需要一直更新index1, index2\
+概念如下\
+針對左界，如果發現target大於nums[mid]\
+這很明顯的我們要的數在右邊\
+但是針對等於或是小於，則是都往左邊繼續搜\
+右界以此類推\
+\
+最終如果這個數有找到的話\
+index1, index2分別會是左右界\
+如果只有一個數被找到則index1 == index2\
+但是如果完全找不到\
+理論上index1會是離target最近但是大於target的數\
+index2則是離target最近但小於target的數\
+舉例來說\
+[5,7,7,8,8,10]\
+6\
+這樣的測資下idx1 = 1, idx2 = 0\
+按照題意 return [-1, -1]\
 
 #### Solution
 
@@ -1918,9 +2009,9 @@ A solution set is:
 ]
 ```
 ##### Discussion
-Backtrace 經典題，公式如下方，這次題目說不會有重複的input，但是每個element可以重複
-也就是self.backtrace(**idx**, nums, remain-nums[idx], current+[nums[idx]], ans) 
-下層recursive可以從自己開始
+Backtrace 經典題，公式如下方，這次題目說不會有重複的input，但是每個element可以重複\
+也就是self.backtrace(**idx**, nums, remain-nums[idx], current+[nums[idx]], ans) \
+下層recursive可以從自己開始\
 
 #### Solution
 
@@ -2000,7 +2091,7 @@ self.helper(idx+1, nums, current+[nums[idx]], remain-nums[idx], ans)\
 濾掉的方法為**if idx > start and nums[idx] == nums[idx-1]: continue**\
 照裡來說只要nums[idx] == nums[idx-1]就應該skip，舉例來說[1,4], [1,4], [1,4], [1,4]，後面三個都是重複的\
 但是唯一的例外是，假設今天target是9，我們反而需要[1,4,4]，這個case會在第一次跑到\
-所以後面的都可以濾掉，也就是[1, 4] -> 這邊的4是第2個4，它的所有情況都已經包含在第1個4，所以可以全部忽略
+所以後面的都可以濾掉，也就是[1, 4] -> 這邊的4是第2個4，它的所有情況都已經包含在第1個4，所以可以全部忽略\
 
 
 #### Solution
