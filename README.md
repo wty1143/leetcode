@@ -901,7 +901,7 @@ Your algorithm should run in _O_(_n_) time and uses constant extra space.
 接下來只要掃那個array找第一個不是1的就是答案\
 但是這樣就不是constant extra space，**通常題目寫這句話就是要你用原本的array**\
 但是如果那個index本身就有小於array本身size的數怎麼辦\
-所以就用swap的，只有在條件符合i才會++\
+所以就用swap的，只有在條件符合i才會++
 
 舉例來說\
 [3,4,7,2,1,2]
@@ -2011,7 +2011,7 @@ A solution set is:
 ##### Discussion
 Backtrace 經典題，公式如下方，這次題目說不會有重複的input，但是每個element可以重複\
 也就是self.backtrace(**idx**, nums, remain-nums[idx], current+[nums[idx]], ans) \
-下層recursive可以從自己開始\
+下層recursive可以從自己開始
 
 #### Solution
 
@@ -2091,7 +2091,7 @@ self.helper(idx+1, nums, current+[nums[idx]], remain-nums[idx], ans)\
 濾掉的方法為**if idx > start and nums[idx] == nums[idx-1]: continue**\
 照裡來說只要nums[idx] == nums[idx-1]就應該skip，舉例來說[1,4], [1,4], [1,4], [1,4]，後面三個都是重複的\
 但是唯一的例外是，假設今天target是9，我們反而需要[1,4,4]，這個case會在第一次跑到\
-所以後面的都可以濾掉，也就是[1, 4] -> 這邊的4是第2個4，它的所有情況都已經包含在第1個4，所以可以全部忽略\
+所以後面的都可以濾掉，也就是[1, 4] -> 這邊的4是第2個4，它的所有情況都已經包含在第1個4，所以可以全部忽略
 
 
 #### Solution
