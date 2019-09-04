@@ -1991,15 +1991,15 @@ A solution set is:
 ]
 ```
 ##### Discussion
-照著公式寫，但是每個element變成只能用一次
-self.helper(idx+1, nums, current+[nums[idx]], remain-nums[idx], ans)
-第二個麻煩是重複的不能列出
-最笨的做法就是用set把重複的全部濾掉，但這也太笨
-假設我們有個candidates = [1,1,1,2,3,4,4,4,4] target = 5
-這樣答案應該為[1,1,1,2], [1,1,3], [1,4], [2,3]
-濾掉的方法為**if idx > start and nums[idx] == nums[idx-1]: continue**
-照裡來說只要nums[idx] == nums[idx-1]就應該skip，舉例來說[1,4], [1,4], [1,4], [1,4]，後面三個都是重複的
-但是唯一的例外是，假設今天target是9，我們反而需要[1,4,4]，這個case會在第一次跑到
+照著公式寫，但是每個element變成只能用一次\
+self.helper(idx+1, nums, current+[nums[idx]], remain-nums[idx], ans)\
+第二個麻煩是重複的不能列出\
+最笨的做法就是用set把重複的全部濾掉，但這也太笨\
+假設我們有個candidates = [1,1,1,2,3,4,4,4,4] target = 5\
+這樣答案應該為[1,1,1,2], [1,1,3], [1,4], [2,3]\
+濾掉的方法為**if idx > start and nums[idx] == nums[idx-1]: continue**\
+照裡來說只要nums[idx] == nums[idx-1]就應該skip，舉例來說[1,4], [1,4], [1,4], [1,4]，後面三個都是重複的\
+但是唯一的例外是，假設今天target是9，我們反而需要[1,4,4]，這個case會在第一次跑到\
 所以後面的都可以濾掉，也就是[1, 4] -> 這邊的4是第2個4，它的所有情況都已經包含在第1個4，所以可以全部忽略
 
 
