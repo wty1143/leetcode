@@ -6,6 +6,9 @@
 - Tip1: Two pointer for sorted array (#Array 1. Two Sum)
 - Tip2: Sum[i:j] = Sum[0:j] - Sum[0:i] for continuous array (# Array 560. Subarray Sum Equals K)
 - Tip3: Knapsack Problem (0/1, unbounded) (#DP 322. Coin Change)
+- Tip4: backtrace or K sum remove duplicates
+    - ```if i != 0 and n == nums[i-1]:```(#15. 3Sum)
+    - ```if idx > start and nums[idx] == nums[idx-1]: continue```(#40. Combination Sum II)
 
 ## Trick
 - Trick1: When accessing minus index, but you want to get a default value in 0, you can use **dp[max(day-7, 0)]+costs[1]**
@@ -20,7 +23,7 @@
 - [**Binary Search**](#binary_search)
 - Divide and Conquer
 - [**Dynamic Programming**](#dp)
-- Backtracking
+- [**Backtracking**](#backtracking)
 - Stack
 - Heap
 - Greedy
@@ -1418,6 +1421,157 @@ class Solution(object):
             
 ```
 
+### [278\. First Bad Version](https://leetcode.com/problems/first-bad-version/)
+
+Difficulty: **Easy**
+
+
+You are a product manager and currently leading a team to develop a new product. Unfortunately, the latest version of your product fails the quality check. Since each version is developed based on the previous version, all the versions after a bad version are also bad.
+
+Suppose you have `n` versions `[1, 2, ..., n]` and you want to find out the first bad one, which causes all the following ones to be bad.
+
+You are given an API `bool isBadVersion(version)` which will return whether `version` is bad. Implement a function to find the first bad version. You should minimize the number of calls to the API.
+
+**Example:**
+
+```
+Given n = 5, and version = 4 is the first bad version.
+
+call isBadVersion(3) -> false
+call isBadVersion(5) -> true
+call isBadVersion(4) -> true
+
+Then 4 is the first bad version. 
+```
+##### Discussion
+標準的binary search，公式
+```python
+left, right = 0, len(nums)-1
+
+while left <= right:
+    mid = (left+right)/2
+    if nums[mid] == target:
+        break
+    elif nums[mid] < target:
+        left = mid + 1
+    else:
+        right = mid - 1
+```
+如果是要找最右邊的，小改即可
+- 如果target存在且僅有一個，最終right會是答案
+- 如果target存在且有多個，最終right會是最右邊的target
+- 如果target不存在，最終right會是小於target的數中最大的
+
+```python
+left, right = 0, len(nums)-1
+
+while left <= right:
+    mid = (left+right)/2
+    if nums[mid] <= target:
+        left = mid + 1
+    else:
+        right = mid - 1
+return right
+```
+
+
+#### Solution
+
+Language: **Python**
+
+```python
+# The isBadVersion API is already defined for you.
+# @param version, an integer
+# @return a bool
+# def isBadVersion(version):
+​
+class Solution(object):
+    def firstBadVersion(self, n):
+        """
+        :type n: int
+        :rtype: int
+        """
+        left, right = 0, n-1
+        
+        # false false true
+        
+        while left <= right:
+            mid = (left+right)/2
+            if not isBadVersion(mid):
+                left = mid + 1
+            else:
+                right = mid - 1
+        
+        return left
+```
+
+### [35\. Search Insert Position](https://leetcode.com/problems/search-insert-position/)
+
+Difficulty: **Easy**
+
+
+Given a sorted array and a target value, return the index if the target is found. If not, return the index where it would be if it were inserted in order.
+
+You may assume no duplicates in the array.
+
+**Example 1:**
+
+```
+Input: [1,3,5,6], 5
+Output: 2
+```
+
+**Example 2:**
+
+```
+Input: [1,3,5,6], 2
+Output: 1
+```
+
+**Example 3:**
+
+```
+Input: [1,3,5,6], 7
+Output: 4
+```
+
+**Example 4:**
+
+```
+Input: [1,3,5,6], 0
+Output: 0
+```
+
+##### Discussion
+如上題，套公式即可
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def searchInsert(self, nums, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: int
+        """
+        left, right = 0, len(nums)-1
+        
+        while left <= right:
+            mid = (left+right)/2
+            
+            if nums[mid] == target:
+                return mid
+            elif nums[mid] < target:
+                left = mid+1
+            else:
+                right = mid-1
+        
+        return left
+```
+
 ## <a name="dp"></a>Dynamic Programming
 ### [322\. Coin Change](https://leetcode.com/problems/coin-change/)
 
@@ -1724,4 +1878,158 @@ class Solution(object):
             dp[day] = min(dp[day], dp[day-1]+costs[0], dp[max(day-7, 0)]+costs[1], dp[max(day-30, 0)]+costs[2])
         
         return dp[last_day]
+```
+
+## <a name="backtracking"></a>Backtracking
+### [39\. Combination Sum](https://leetcode.com/problems/combination-sum/)
+
+Difficulty: **Medium**
+
+
+Given a **set** of candidate numbers (`candidates`) **(without duplicates)** and a target number (`target`), find all unique combinations in `candidates` where the candidate numbers sums to `target`.
+
+The **same** repeated number may be chosen from `candidates` unlimited number of times.
+
+**Note:**
+
+*   All numbers (including `target`) will be positive integers.
+*   The solution set must not contain duplicate combinations.
+
+**Example 1:**
+
+```
+Input: candidates = [2,3,6,7], target = 7,
+A solution set is:
+[
+  [7],
+  [2,2,3]
+]
+```
+
+**Example 2:**
+
+```
+Input: candidates = [2,3,5], target = 8,
+A solution set is:
+[
+  [2,2,2,2],
+  [2,3,3],
+  [3,5]
+]
+```
+##### Discussion
+Backtrace 經典題，公式如下方，這次題目說不會有重複的input，但是每個element可以重複
+也就是self.backtrace(**idx**, nums, remain-nums[idx], current+[nums[idx]], ans) 
+下層recursive可以從自己開始
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def backtrace(self, start, nums, remain, current, ans):
+        if remain == 0:
+            ans.append(current)
+            return
+        if remain < 0:
+            return
+        # Prune
+        for idx in xrange(start, len(nums)):
+            if nums[idx] > remain:
+                break
+            self.backtrace(idx, nums, remain-nums[idx], current+[nums[idx]], ans)
+            
+    
+    def combinationSum(self, candidates, target):
+        """
+        :type candidates: List[int]
+        :type target: int
+        :rtype: List[List[int]]
+        """
+        candidates.sort()
+        ans = []
+        self.backtrace(0, candidates, target, [], ans)
+        return ans
+```
+
+### [40\. Combination Sum II](https://leetcode.com/problems/combination-sum-ii/)
+
+Difficulty: **Medium**
+
+
+Given a collection of candidate numbers (`candidates`) and a target number (`target`), find all unique combinations in `candidates` where the candidate numbers sums to `target`.
+
+Each number in `candidates` may only be used **once** in the combination.
+
+**Note:**
+
+*   All numbers (including `target`) will be positive integers.
+*   The solution set must not contain duplicate combinations.
+
+**Example 1:**
+
+```
+Input: candidates = [10,1,2,7,6,1,5], target = 8,
+A solution set is:
+[
+  [1, 7],
+  [1, 2, 5],
+  [2, 6],
+  [1, 1, 6]
+]
+```
+
+**Example 2:**
+
+```
+Input: candidates = [2,5,2,1,2], target = 5,
+A solution set is:
+[
+  [1,2,2],
+  [5]
+]
+```
+##### Discussion
+照著公式寫，但是每個element變成只能用一次
+self.helper(idx+1, nums, current+[nums[idx]], remain-nums[idx], ans)
+第二個麻煩是重複的不能列出
+最笨的做法就是用set把重複的全部濾掉，但這也太笨
+假設我們有個candidates = [1,1,1,2,3,4,4,4,4] target = 5
+這樣答案應該為[1,1,1,2], [1,1,3], [1,4], [2,3]
+濾掉的方法為**if idx > start and nums[idx] == nums[idx-1]: continue**
+照裡來說只要nums[idx] == nums[idx-1]就應該skip，舉例來說[1,4], [1,4], [1,4], [1,4]，後面三個都是重複的
+但是唯一的例外是，假設今天target是9，我們反而需要[1,4,4]，這個case會在第一次跑到
+所以後面的都可以濾掉，也就是[1, 4] -> 這邊的4是第2個4，它的所有情況都已經包含在第1個4，所以可以全部忽略
+
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def helper(self, start, nums, current, remain, ans):
+        
+        if remain == 0:
+            ans.append(current)
+            return
+        if remain < 0:
+            return
+        
+        length = len(nums)
+        for idx in xrange(start, length):
+            if idx > start and nums[idx] == nums[idx-1]: continue
+            self.helper(idx+1, nums, current+[nums[idx]], remain-nums[idx], ans)
+    
+    def combinationSum2(self, candidates, target):
+        """
+        :type candidates: List[int]
+        :type target: int
+        :rtype: List[List[int]]
+        """
+        candidates.sort()
+        ans = []
+        self.helper(0, candidates, [], target, ans)
+        return ans
 ```
