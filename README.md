@@ -10,6 +10,8 @@
     - ```if i != 0 and n == nums[i-1]:```(#15. 3Sum)
     - ```if idx > start and nums[idx] == nums[idx-1]: continue```(#40. Combination Sum II)
 - Tip5: 鴿籠原理要記得，如果題目說要constant extra space，八成就是用input array + swap(#41. First Missing Positive)
+- Tip6: 題目說要組合的個數時，不能用暴力解，勿忘dp (#377 Combination Sum IV)
+- Tip7: 螺旋題，通常要寫得蠻冗長的，關鍵在於要定義上下左右界，往某個方向走到底後，更新上下左右界即可
 
 ## Trick
 - Trick1: When accessing minus index, but you want to get a default value in 0, you can use **dp[max(day-7, 0)]+costs[1]**
@@ -893,14 +895,14 @@ Your algorithm should run in _O_(_n_) time and uses constant extra space.
 
 
 ##### Discussion
-這題有3個重點，如何O(N) + constant extra space + 鴿籠原理\
-假設今天array當中的數，大於array本身的size，無論如何都放不近來才對\
-所以不用考慮他們\
-那接下來就是要把小於array本身size的數放到對的地方記錄\
-可以開另一個array，只要數小於array本身size，就把那個array對應的index設定為1\
-接下來只要掃那個array找第一個不是1的就是答案\
-但是這樣就不是constant extra space，**通常題目寫這句話就是要你用原本的array**\
-但是如果那個index本身就有小於array本身size的數怎麼辦\
+這題有3個重點，如何O(N) + constant extra space + 鴿籠原理
+假設今天array當中的數，大於array本身的size，無論如何都放不近來才對
+所以不用考慮他們
+那接下來就是要把小於array本身size的數放到對的地方記錄
+可以開另一個array，只要數小於array本身size，就把那個array對應的index設定為1
+接下來只要掃那個array找第一個不是1的就是答案
+但是這樣就不是constant extra space，**通常題目寫這句話就是要你用原本的array**
+但是如果那個index本身就有小於array本身size的數怎麼辦
 所以就用swap的，只有在條件符合i才會++
 
 舉例來說\
@@ -947,6 +949,382 @@ class Solution(object):
                 return i+1
             
         return n+1
+```
+### [55\. Jump Game](https://leetcode.com/problems/jump-game/)
+
+Difficulty: **Medium**
+
+
+Given an array of non-negative integers, you are initially positioned at the first index of the array.
+
+Each element in the array represents your maximum jump length at that position.
+
+Determine if you are able to reach the last index.
+
+**Example 1:**
+
+```
+Input: [2,3,1,1,4]
+Output: true
+Explanation: Jump 1 step from index 0 to 1, then 3 steps to the last index.
+```
+
+**Example 2:**
+
+```
+Input: [3,2,1,0,4]
+Output: false
+Explanation: You will always arrive at index 3 no matter what. Its maximum
+             jump length is 0, which makes it impossible to reach the last index.
+```
+##### Discussion
+題目是給一個list，希望我們看看能不能到最後
+首先，只要數字不為0，就有機會往後
+所以就不斷的更新current max index，
+但只要目前的值為0，index卻等於目前最大能到的index，就代表無法再往後了
+因此return False
+如果成功到達最後，則return True
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def canJump(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: bool
+        """
+        limit = 0
+        for i, n in enumerate(nums):
+            if i+n >= len(nums)-1:
+                return True
+            if n == 0 and i == limit:
+                return False
+            limit = max(i+n, limit)
+        return True
+```
+### [45\. Jump Game II](https://leetcode.com/problems/jump-game-ii/)
+
+Difficulty: **Hard**
+
+
+Given an array of non-negative integers, you are initially positioned at the first index of the array.
+
+Each element in the array represents your maximum jump length at that position.
+
+Your goal is to reach the last index in the minimum number of jumps.
+
+**Example:**
+
+```
+Input: [2,3,1,1,4]
+Output: 2
+Explanation: The minimum number of jumps to reach the last index is 2.
+    Jump 1 step from index 0 to 1, then 3 steps to the last index.
+```
+
+**Note:**
+
+You can assume that you can always reach the last index.
+
+##### Discussion
+這題貌似背包客問題，希望用最少的jump走到終點
+Solution 1, 不停地往後面更新最少步數，所以可以得到每個index的最小步數
+但這個做法會吃TLE
+如何簡化呢?
+**我想到的是假設假設第一個數能到達index 100，那就算第二個數能夠到100，也於事無補，畢竟step就是多了1**
+Solution 2，我們只更新100以後的，也就是說假設第二個數最多能到104，那我們就只更新101~104，直到index到100為止
+這做法就不會吃TLE了
+但是能再怎麼簡化呢?
+事實上，在我們更新了第一步之後，不需要101~104每個都更新，因為能到104代表一定能到101，只要記得到104就好
+也就是說第1步內會到的1~100，只要往後更新step的最大值
+以剛剛的例子假設第三個index能到110代表我們step2最大是110，所以直到第一個數能到的100為止
+我們就知道step2能到的最大範圍，同理在step1到step2中間可以更新step3
+這也就是所謂的**BFS**
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def jump(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        #Solution 1
+        #dp = [len(nums)] * len(nums)
+        #dp[0] = 0
+        #
+        #for idx, step in enumerate(nums):
+        #    for i in range(1, step+1):
+        #        if idx+i < len(nums):
+        #            dp[idx+i] = min(dp[idx]+1, dp[idx+i])
+        #return dp[-1]
+        
+        # Solution 2
+        #dp = [len(nums)] * len(nums)
+        #dp[0] = 0
+        #max_step = [0] * (len(nums)+1)
+        #for idx, step in enumerate(nums):
+        #    start_step = max_step[dp[idx]]
+        #    for i in range(start_step-idx, step+1):
+        #        if idx+i < len(nums):
+        #            dp[idx+i] = min(dp[idx]+1, dp[idx+i])
+        #    max_step[dp[idx]+1] = max(max_step[dp[idx]+1], idx+step)
+        #return dp[-1]
+        
+        #dp = [len(nums)] * len(nums)
+        #dp[0] = 0
+        #max_step = 0
+        #for idx, step in enumerate(nums):
+        #    for i in xrange(max_step-idx, step+1):
+        #        if idx+i < len(nums):
+        #            dp[idx+i] = min(dp[idx]+1, dp[idx+i])
+        #    if idx == max_step:
+        #        max_step = idx+step
+        #return dp[-1]
+        
+        if len(nums) == 1: return 0
+        step, current_range, next_range = 0, 0, nums[0]
+        for i, n in enumerate(nums):
+            next_range = max(i+n, next_range)
+            if i == current_range:
+                step += 1
+                if next_range >= len(nums)-1:
+                    break
+                current_range = next_range
+        return step   
+        
+```
+
+### [48\. Rotate Image](https://leetcode.com/problems/rotate-image/)
+
+Difficulty: **Medium**
+
+
+You are given an _n_ x _n_ 2D matrix representing an image.
+
+Rotate the image by 90 degrees (clockwise).
+
+**Note:**
+
+You have to rotate the image , which means you have to modify the input 2D matrix directly. **DO NOT** allocate another 2D matrix and do the rotation.
+
+**Example 1:**
+
+```
+Given input matrix = 
+[
+  [1,2,3],
+  [4,5,6],
+  [7,8,9]
+],
+
+rotate the input matrix in-place such that it becomes:
+[
+  [7,4,1],
+  [8,5,2],
+  [9,6,3]
+]
+```
+
+**Example 2:**
+
+```
+Given input matrix =
+[
+  [ 5, 1, 9,11],
+  [ 2, 4, 8,10],
+  [13, 3, 6, 7],
+  [15,14,12,16]
+], 
+
+rotate the input matrix in-place such that it becomes:
+[
+  [15,13, 2, 5],
+  [14, 3, 4, 1],
+  [12, 6, 8, 9],
+  [16, 7,10,11]
+]
+```
+
+#####
+[a][b] move to [b][N-a]連續四次
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def rotate(self, matrix):
+        """
+        :type matrix: List[List[int]]
+        :rtype: None Do not return anything, modify matrix in-place instead.
+        """
+        # When N == 3
+        # [0][0] move to [0][3]
+        # [0][1] move to [1][3]
+        # [0][2] move to [2][3]
+        # [2][2] move to [2][1]
+        
+        # [a][b] move to [b][N-a]
+        length = len(matrix)-1
+        
+        # [15,13, 2, 5, 1],  4->2
+        # [14, 3, 4, 1, 1],
+        # [12, 6, 8, 9, 1],
+        # [16, 7,10,11, 1],
+        # [16, 7,10,11, 1],
+        
+        for i in xrange(0, length):
+            for j in xrange(length-i*2):
+                a, b = i, i+j
+                val1 = matrix[a][b]
+                val2 = matrix[b][length-a]
+                val3 = matrix[length-a][length-b]
+                val4 = matrix[length-b][a]
+                matrix[b][length-a] = val1
+                matrix[length-a][length-b] = val2
+                matrix[length-b][a] = val3
+                matrix[a][b] = val4             
+```
+
+### [53\. Maximum Subarray](https://leetcode.com/problems/maximum-subarray/)
+
+Difficulty: **Easy**
+
+
+Given an integer array `nums`, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.
+
+**Example:**
+
+```
+Input: [-2,1,-3,4,-1,2,1,-5,4],
+Output: 6
+Explanation: [4,-1,2,1] has the largest sum = 6.
+```
+
+**Follow up:**
+
+If you have figured out the O(_n_) solution, try coding another solution using the divide and conquer approach, which is more subtle.
+
+##### Discussion
+詳見Tip2: Sum[i:j] = Sum[0:j] - Sum[0:i] for continuous array (# Array 560. Subarray Sum Equals K)
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def maxSubArray(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        min_sub = 0
+        total = 0
+        ans = nums[0]
+        for n in nums:
+            total += n
+            ans = max(ans, total - min_sub)
+            min_sub = min(min_sub, total)
+        return ans
+```
+
+### [54\. Spiral Matrix](https://leetcode.com/problems/spiral-matrix/)
+
+Difficulty: **Medium**
+
+
+Given a matrix of _m_ x _n_ elements (_m_ rows, _n_ columns), return all elements of the matrix in spiral order.
+
+**Example 1:**
+
+```
+Input:
+[
+ [ 1, 2, 3 ],
+ [ 4, 5, 6 ],
+ [ 7, 8, 9 ]
+]
+Output: [1,2,3,6,9,8,7,4,5]
+```
+
+**Example 2:**
+
+```
+Input:
+[
+  [1, 2, 3, 4],
+  [5, 6, 7, 8],
+  [9,10,11,12]
+]
+Output: [1,2,3,4,8,12,11,10,9,5,6,7]
+```
+
+##### Discussion
+**螺旋題，通常要寫得蠻冗長的，關鍵在於要定義上下左右界，往某個方向走到底後，更新上下左右界即可**
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def spiralOrder(self, matrix):
+        """
+        :type matrix: List[List[int]]
+        :rtype: List[int]
+        """
+        if not matrix:
+            return []
+        if not matrix[0]:
+            return []
+        
+        height, width, left_boader, up_boader = len(matrix), len(matrix[0]), 0, 0
+        ans = []
+        left, right, down, up = 0, 1, 2, 3
+        i, j, direction = 0, 0, right
+        total = height * width
+        for _ in xrange(total):
+            ans.append(matrix[i][j])
+            if direction == right:
+                if j != width-1:
+                    j += 1
+                else:
+                    i += 1
+                    direction = down
+                    up_boader += 1
+                    
+            elif direction == down:
+                if i != height-1:
+                    i += 1
+                else:
+                    direction = left
+                    j -= 1
+                    width -= 1
+            
+            elif direction == left:
+                if j != left_boader:
+                    j -= 1
+                else:
+                    i -= 1
+                    direction = up
+                    height -= 1
+            else:
+                if i > up_boader:
+                    i -= 1
+                else:
+                    direction = right
+                    j += 1
+                    left_boader += 1
+        return ans
 ```
 
 ## <a name="double_pointers"></a>Double Pointers
@@ -2123,4 +2501,138 @@ class Solution(object):
         ans = []
         self.helper(0, candidates, [], target, ans)
         return ans
+```
+
+### [216\. Combination Sum III](https://leetcode.com/problems/combination-sum-iii/)
+
+Difficulty: **Medium**
+
+
+Find all possible combinations of _**k**_ numbers that add up to a number _**n**_, given that only numbers from 1 to 9 can be used and each combination should be a unique set of numbers.
+
+**Note:**
+
+*   All numbers will be positive integers.
+*   The solution set must not contain duplicate combinations.
+
+**Example 1:**
+
+```
+Input: k = 3, n = 7
+Output: [[1,2,4]]
+```
+
+**Example 2:**
+
+```
+Input: k = 3, n = 9
+Output: [[1,2,6], [1,3,5], [2,3,4]]
+```
+
+##### Discussion
+幾乎跟所有combination一樣，唯一多的是限制了combination中，element的個數
+```if remain == 0 and k == 0```
+補上後已無難度
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def helper(self, start, remain, current, ans, k):
+        if k < 0:
+            return
+        if remain == 0 and k == 0:
+            ans.append(current)
+            return
+        
+        for idx in xrange(start, 10):
+            self.helper(idx+1, remain-idx, current+[idx], ans, k-1)
+            
+    def combinationSum3(self, k, n):
+        """
+        :type k: int
+        :type n: int
+        :rtype: List[List[int]]
+        """
+        ans = []
+        self.helper(1, n, [], ans, k)
+        return ans
+```
+
+### [377\. Combination Sum IV](https://leetcode.com/problems/combination-sum-iv/)
+
+Difficulty: **Medium**
+
+
+Given an integer array with all positive numbers and no duplicates, find the number of possible combinations that add up to a positive integer target.
+
+**Example:**
+
+```
+nums = [1, 2, 3]
+target = 4
+
+The possible combination ways are:
+(1, 1, 1, 1)
+(1, 1, 2)
+(1, 2, 1)
+(1, 3)
+(2, 1, 1)
+(2, 2)
+(3, 1)
+
+Note that different sequences are counted as different combinations.
+
+Therefore the output is 7.
+```
+
+**Follow up:**  
+What if negative numbers are allowed in the given array?  
+How does it change the problem?  
+What limitation we need to add to the question to allow negative numbers?
+
+##### Discussion
+當題目不需要列出所有組數時，那就代表我們原本的backtrace一定會爆炸
+畢竟backtrace是暴力解
+果然實作完成馬上吃了一個TLE
+**題目說要組合的個數時，不能用暴力解**
+**寫在這邊是希望自己記得不要每次都傻傻的backtrace**
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    
+    def helper(self, start, nums, remain):
+        if remain == 0:
+            self.ans += 1
+        if remain < 0:
+            return
+        for idx in range(0, len(nums)):
+            self.helper(idx+1, nums, remain-nums[idx])
+    
+    def combinationSum4(self, nums, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: int
+        """
+        #self.ans = 0
+        #self.helper(0, nums, target)
+        #return self.ans
+        dp = [0] * (target+1)
+        for n in nums:
+            if n <= target:
+                dp[n] = 1
+​
+        for i in xrange(1, target+1):
+            for n in nums:
+                dp[i] += dp[max(i-n, 0)]
+                
+        return dp[target]
+        
 ```
