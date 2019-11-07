@@ -12,7 +12,7 @@
 - Tip5: 鴿籠原理要記得，如果題目說要constant extra space，八成就是用input array + swap(#41. First Missing Positive)
 - Tip6: 題目說要組合的個數時，不能用暴力解，勿忘dp (#377 Combination Sum IV)
 - Tip7: 螺旋題，通常要寫得蠻冗長的，關鍵在於要定義上下左右界，往某個方向走到底後，更新上下左右界即可
-
+- Tip8: 遇到interval需要被merge時，先檢查是否交集，交集後的left左界中較小的，right則為右界中較大的 (#56. Merge Intervals)
 ## Trick
 - Trick1: When accessing minus index, but you want to get a default value in 0, you can use **dp[max(day-7, 0)]+costs[1]**
 
@@ -27,7 +27,7 @@
 - Divide and Conquer
 - [**Dynamic Programming**](#dp)
 - [**Backtracking**](#backtracking)
-- Stack
+- [**Stack**](#stack)
 - Heap
 - Greedy
 - Sort
@@ -1327,6 +1327,824 @@ class Solution(object):
         return ans
 ```
 
+### [56\. Merge Intervals](https://leetcode.com/problems/merge-intervals/)
+
+Difficulty: **Medium**
+
+
+Given a collection of intervals, merge all overlapping intervals.
+
+**Example 1:**
+
+```
+Input: [[1,3],[2,6],[8,10],[15,18]]
+Output: [[1,6],[8,10],[15,18]]
+Explanation: Since intervals [1,3] and [2,6] overlaps, merge them into [1,6].
+```
+
+**Example 2:**
+
+```
+Input: [[1,4],[4,5]]
+Output: [[1,5]]
+Explanation: Intervals [1,4] and [4,5] are considered overlapping.
+```
+
+**NOTE:** input types have been changed on April 15, 2019\. Please reset to default code definition to get new method signature.
+
+##### Discussion
+**遇到interval需要被merge時，先檢查是否交集，交集後的left左界中較小的，right則為右界中較大的**
+```python
+if interval[0] <= right:
+    right = max(right, interval[1])
+```
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def merge(self, intervals):
+        """
+        :type intervals: List[List[int]]
+        :rtype: List[List[int]]
+        """
+        intervals.sort(key=lambda v: v[0])
+        
+        if not intervals:
+            return []
+        
+        ans = []
+        left, right = intervals[0]
+        for interval in intervals:
+            if interval[0] <= right:
+                right = max(right, interval[1])
+            else:
+                ans.append([left, right])
+                left, right = interval
+        ans.append([left, right])
+        return ans
+```
+
+### [57\. Insert Interval](https://leetcode.com/problems/insert-interval/)
+
+Difficulty: **Hard**
+
+
+Given a set of _non-overlapping_ intervals, insert a new interval into the intervals (merge if necessary).
+
+You may assume that the intervals were initially sorted according to their start times.
+
+**Example 1:**
+
+```
+Input: intervals = [[1,3],[6,9]], newInterval = [2,5]
+Output: [[1,5],[6,9]]
+```
+
+**Example 2:**
+
+```
+Input: intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]
+Output: [[1,2],[3,10],[12,16]]
+Explanation: Because the new interval [4,8] overlaps with [3,5],[6,7],[8,10].
+```
+
+**NOTE:** input types have been changed on April 15, 2019\. Please reset to default code definition to get new method signature.
+
+##### Discusion
+由Tip8 遇到interval需要被merge時，先檢查是否交集，交集後的left左界中較小的，right則為右界中較大的
+
+我們將新的interval做merge，只要有交集，就擴大目前的這個集合，左右界則是follow tip8
+即可以找到我們要的全部overlap區間
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def insert(self, intervals, newInterval):
+        """
+        :type intervals: List[List[int]]
+        :type newInterval: List[int]
+        :rtype: List[List[int]]
+        """
+        a, b = newInterval
+        left, right = a, b
+        
+        ans_left, ans_right = [], []
+        
+        for interval in intervals:
+            x, y = interval
+            # this interval will not be merged
+            if y < a:
+                ans_left.append(interval)
+                continue
+            if x > b:
+                ans_right.append(interval)
+                continue
+             
+            #    a ------- b
+            # x------y
+            #          x ----- y
+            #      x --- y
+            # x -------------- y
+            # otherwise, start to merge
+            if a <= y or x <= b:
+                left = min(left, x)
+                right = max(right, y)
+        
+        return ans_left + [[left, right]] + ans_right
+```
+
+### [59\. Spiral Matrix II](https://leetcode.com/problems/spiral-matrix-ii/)
+
+Difficulty: **Medium**
+
+
+Given a positive integer _n_, generate a square matrix filled with elements from 1 to _n_<sup>2</sup> in spiral order.
+
+**Example:**
+
+```
+Input: 3
+Output:
+[
+ [ 1, 2, 3 ],
+ [ 8, 9, 4 ],
+ [ 7, 6, 5 ]
+]
+```
+##### Discussion
+用Tip7即可結案
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def generateMatrix(self, n):
+        """
+        :type n: int
+        :rtype: List[List[int]]
+        """
+        ans = [[None for j in range(n)] for i in range(n)]
+        left, right, up, down = 1, 2, 3, 4
+        x, y, direction = 0, 0, right
+        left_boader, up_boader, down_boader, right_boader = 0, 0, n-1, n-1
+        for num in range(n*n):
+            ans[x][y] = num+1
+            if direction == right: 
+                if y < right_boader:
+                    y += 1
+                else:
+                    direction = down
+                    up_boader += 1
+                    x += 1
+            elif direction == down:
+                if x < down_boader:
+                    x += 1
+                else:
+                    direction = left
+                    right_boader -= 1
+                    y -= 1
+            elif direction == left:
+                if y > left_boader:
+                    y -= 1
+                else:
+                    direction = up
+                    down_boader -= 1
+                    x -= 1
+            else:
+                if x > up_boader:
+```
+
+### [62\. Unique Paths](https://leetcode.com/problems/unique-paths/)
+
+Difficulty: **Medium**
+
+
+A robot is located at the top-left corner of a _m_ x _n_ grid (marked 'Start' in the diagram below).
+
+The robot can only move either down or right at any point in time. The robot is trying to reach the bottom-right corner of the grid (marked 'Finish' in the diagram below).
+
+How many possible unique paths are there?
+
+![](https://assets.leetcode.com/uploads/2018/10/22/robot_maze.png)  
+<small style="display: inline;">Above is a 7 x 3 grid. How many possible unique paths are there?</small>
+
+**Note:** _m_ and _n_ will be at most 100.
+
+**Example 1:**
+
+```
+Input: m = 3, n = 2
+Output: 3
+Explanation:
+From the top-left corner, there are a total of 3 ways to reach the bottom-right corner:
+1\. Right -> Right -> Down
+2\. Right -> Down -> Right
+3\. Down -> Right -> Right
+```
+
+**Example 2:**
+
+```
+Input: m = 7, n = 3
+Output: 28
+```
+##### Discussion
+數學題，m!/((n!)*(m-n)!)
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def uniquePaths(self, m, n):
+        """
+        :type m: int
+        :type n: int
+        :rtype: int
+        """
+        def factorial(n):
+            if n <= 1:
+                return 1
+            else:
+                return n * factorial(n-1)
+        
+        return factorial(n+m-2)/factorial(n-1)/factorial(m-1)
+```
+
+### [63\. Unique Paths II](https://leetcode.com/problems/unique-paths-ii/)
+
+Difficulty: **Medium**
+
+
+A robot is located at the top-left corner of a _m_ x _n_ grid (marked 'Start' in the diagram below).
+
+The robot can only move either down or right at any point in time. The robot is trying to reach the bottom-right corner of the grid (marked 'Finish' in the diagram below).
+
+Now consider if some obstacles are added to the grids. How many unique paths would there be?
+
+![](https://assets.leetcode.com/uploads/2018/10/22/robot_maze.png)
+
+An obstacle and empty space is marked as `1` and `0` respectively in the grid.
+
+**Note:** _m_ and _n_ will be at most 100.
+
+**Example 1:**
+
+```
+Input:
+[
+  [0,0,0],
+  [0,1,0],
+  [0,0,0]
+]
+Output: 2
+Explanation:
+There is one obstacle in the middle of the 3x3 grid above.
+There are two ways to reach the bottom-right corner:
+1\. Right -> Right -> Down -> Down
+2\. Down -> Down -> Right -> Right
+```
+
+##### Discussion
+這題就不能賴皮了，乖乖dp，```dp[i][j] = dp[i-1][j]+dp[i][j-1]```
+障礙物直接跳過就好
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def uniquePathsWithObstacles(self, obstacleGrid):
+        """
+        :type obstacleGrid: List[List[int]]
+        :rtype: int
+        """
+        
+        height = len(obstacleGrid)
+        if not height:
+            return 0
+        width = len(obstacleGrid[0])
+        if not width:
+            return 0
+        
+        dp = [[0] * width for _ in range(height)]
+        dp[0][0] = 1 if not obstacleGrid[0][0] else 0
+        
+        for i in xrange(height):
+            for j in xrange(width):
+                if obstacleGrid[i][j]:
+                    continue
+                    
+                if i == 0 and j == 0:
+                    continue
+                elif i == 0:
+                    dp[i][j] = dp[i][j-1]
+                elif j == 0:
+                    dp[i][j] = dp[i-1][j]
+                else:
+                    dp[i][j] = dp[i][j-1] + dp[i-1][j]
+        
+        return dp[-1][-1]
+                             
+```
+
+### [64\. Minimum Path Sum](https://leetcode.com/problems/minimum-path-sum/)
+
+Difficulty: **Medium**
+
+
+Given a _m_ x _n_ grid filled with non-negative numbers, find a path from top left to bottom right which _minimizes_ the sum of all numbers along its path.
+
+**Note:** You can only move either down or right at any point in time.
+
+**Example:**
+
+```
+Input:
+[
+  [1,3,1],
+  [1,5,1],
+  [4,2,1]
+]
+Output: 7
+Explanation: Because the path 1→3→1→1→1 minimizes the sum.
+```
+##### Discussion
+跟上一題一樣dp，```dp[i][j] = min(dp[i-1][j], d[i][j-1])+nums[i][j]```
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def minPathSum(self, grid):
+        """
+        :type grid: List[List[int]]
+        :rtype: int
+        """
+        if not grid:
+            return 0
+        if not grid[0]:
+            return 0
+        
+        height = len(grid)
+        width = len(grid[0])
+        
+        dp = [[0]*width]*height
+        
+        for i in xrange(height):
+            for j in xrange(width):
+                if i == 0 and j == 0:
+                    dp[0][0] = grid[0][0]
+                elif i == 0:
+                    dp[i][j] = dp[i][j-1]+grid[i][j]
+                elif j == 0:
+                    dp[i][j] = dp[i-1][j]+grid[i][j]
+                else:
+                    dp[i][j] = min(dp[i][j-1], dp[i-1][j])+grid[i][j]
+                    
+        return dp[-1][-1]
+        
+```
+
+### [66\. Plus One](https://leetcode.com/problems/plus-one/)
+
+Difficulty: **Easy**
+
+
+Given a **non-empty** array of digits representing a non-negative integer, plus one to the integer.
+
+The digits are stored such that the most significant digit is at the head of the list, and each element in the array contain a single digit.
+
+You may assume the integer does not contain any leading zero, except the number 0 itself.
+
+**Example 1:**
+
+```
+Input: [1,2,3]
+Output: [1,2,4]
+Explanation: The array represents the integer 123.
+```
+
+**Example 2:**
+
+```
+Input: [4,3,2,1]
+Output: [4,3,2,2]
+Explanation: The array represents the integer 4321.
+```
+
+##### Discussion
+cout初始值給1即可以
+記得最後離開loop要考慮cout為1的情況
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def plusOne(self, digits):
+        """
+        :type digits: List[int]
+        :rtype: List[int]
+        """
+        cout, ans = 1, []
+        for i in digits[::-1]:
+            digit = (i+cout)%10
+            cout = (i+cout)/10
+            ans.append(digit)
+        if cout:
+            ans.append(1)
+        
+        return ans[::-1]
+```
+### [73\. Set Matrix Zeroes](https://leetcode.com/problems/set-matrix-zeroes/)
+
+Difficulty: **Medium**
+
+
+Given a _m_ x _n_ matrix, if an element is 0, set its entire row and column to 0\. Do it .
+
+**Example 1:**
+
+```
+Input: 
+[
+  [1,1,1],
+  [1,0,1],
+  [1,1,1]
+]
+Output: 
+[
+  [1,0,1],
+  [0,0,0],
+  [1,0,1]
+]
+```
+
+**Example 2:**
+
+```
+Input: 
+[
+  [0,1,2,0],
+  [3,4,5,2],
+  [1,3,1,5]
+]
+Output: 
+[
+  [0,0,0,0],
+  [0,4,5,0],
+  [0,3,1,0]
+]
+```
+
+**Follow up:**
+
+*   A straight forward solution using O(_m__n_) space is probably a bad idea.
+*   A simple improvement uses O(_m_ + _n_) space, but still not the best solution.
+*   Could you devise a constant space solution?
+
+##### Dicussion
+題目要把所有0的row, column都設為0
+所以需要統計出那些row, column有包含0
+這邊的解法是用set, space complexity(O(mn))
+能不能更省呢?
+
+**可以用1st row跟1st column當作flag**
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def setZeroes(self, matrix):
+        """
+        :type matrix: List[List[int]]
+        :rtype: None Do not return anything, modify matrix in-place instead.
+        """
+        # set it to another value then set all the other value to 0 after scan all
+        row = set()
+        column = set()
+        
+        if not matrix:
+            return
+        if not matrix[0]:
+            return
+        
+        height, width = len(matrix), len(matrix[0])
+        
+        for i in xrange(height):
+            for j in xrange(width):
+                if matrix[i][j] == 0:
+                    row.add(i)
+                    column.add(j)
+        
+        for r in row:
+            for j in xrange(width):
+                matrix[r][j] = 0
+        for c in column:
+            for i in xrange(height):
+                matrix[i][c] = 0
+```
+
+### [74\. Search a 2D Matrix](https://leetcode.com/problems/search-a-2d-matrix/)
+
+Difficulty: **Medium**
+
+
+Write an efficient algorithm that searches for a value in an _m_ x _n_ matrix. This matrix has the following properties:
+
+*   Integers in each row are sorted from left to right.
+*   The first integer of each row is greater than the last integer of the previous row.
+
+**Example 1:**
+
+```
+Input:
+matrix = [
+  [1,   3,  5,  7],
+  [10, 11, 16, 20],
+  [23, 30, 34, 50]
+]
+target = 3
+Output: true
+```
+
+**Example 2:**
+
+```
+Input:
+matrix = [
+  [1,   3,  5,  7],
+  [10, 11, 16, 20],
+  [23, 30, 34, 50]
+]
+target = 13
+Output: false
+```
+##### Discussion
+這題基本上可以用兩個binary search就解決
+但是如果無法用bianry search，O(m+n)也可以解
+魔法就是先從7開始
+如果要找的target較小就往左
+不然就往下
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def searchMatrix(self, matrix, target):
+        """
+        :type matrix: List[List[int]]
+        :type target: int
+        :rtype: bool
+        """
+        # two binary serach should work
+        # first for the col[0] element
+        # second for the row
+        if not matrix:
+            return False
+        if not matrix[0]:
+            return False
+        
+        left, right = 0, len(matrix)-1
+        
+        while left <= right:
+            mid = (left+right)/2
+            if matrix[mid][0] <= target:
+                left = mid + 1
+            else:
+                right = mid - 1
+        
+        target_row = right
+        left, right = 0, len(matrix[0])-1
+        
+        while left <= right:
+            mid = (left + right)/2
+            if matrix[target_row][mid] == target:
+                return True
+            elif matrix[target_row][mid] < target:
+                left = mid + 1
+            else:
+                right = mid - 1
+        return False
+```
+
+### [75\. Sort Colors](https://leetcode.com/problems/sort-colors/)
+
+Difficulty: **Medium**
+
+
+Given an array with _n_ objects colored red, white or blue, sort them so that objects of the same color are adjacent, with the colors in the order red, white and blue.
+
+Here, we will use the integers 0, 1, and 2 to represent the color red, white, and blue respectively.
+
+**Note:** You are not suppose to use the library's sort function for this problem.
+
+**Example:**
+
+```
+Input: [2,0,2,1,1,0]
+Output: [0,0,1,1,2,2]
+```
+
+**Follow up:**
+
+*   A rather straight forward solution is a two-pass algorithm using counting sort.  
+    First, iterate the array counting number of 0's, 1's, and 2's, then overwrite array with total number of 0's, then 1's and followed by 2's.
+*   Could you come up with a one-pass algorithm using only constant space?
+
+##### Discussion
+這題希望我們可以把[2,0,2,1,1,0]變成[0,0,1,1,2,2]
+其實sorting就好
+但是如果要求O(n)
+就要想怎麼優化
+第一個可以想的是它最多就三種0, 1, 2
+所以感覺就可以用two pointer去試試看
+0一個，2一個，分別代表第一個不是0跟2的index
+一路往兩個pointer swap並內縮
+
+sorting的法則
+- 當只有2種element，用two pointer
+- 當只有3種element，一樣two pointer
+- 當只有N種element，用counting sort，缺點是需要O(N) space complexity
+- 當element的個數不詳，用qsort
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def sortColors(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: None Do not return anything, modify nums in-place instead.
+        """
+        two = len(nums)-1
+        i, zero = 0, 0
+        while i < len(nums):
+            if nums[i] == 2 and i < two:
+                nums[i], nums[two] = nums[two], nums[i]
+                two -= 1
+            elif nums[i] == 0 and zero != i:
+                nums[i], nums[zero] = nums[zero], nums[i]
+                zero += 1
+            else:
+                i += 1
+            
+```python
+class Solution(object):
+    def sortColors(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: None Do not return anything, modify nums in-place instead.
+        """
+        def swap(a, b): 
+            a, b = b, a
+            
+        zero, two = 0, len(nums)-1
+        i = 0
+        while i <= two:
+            if nums[i] == 0 and i != zero:
+                nums[i], nums[zero] = nums[zero], nums[i]
+                zero += 1
+            elif nums[i] == 2:
+                nums[i], nums[two] = nums[two], nums[i]
+                two -= 1
+            else:
+                i += 1
+		'''
+        [2,0,2,1,1,0]
+        [0,0,2,1,1,2]
+        [0,0,1,1,2,2]
+		'''
+```
+
+### [80\. Remove Duplicates from Sorted Array II](https://leetcode.com/problems/remove-duplicates-from-sorted-array-ii/)
+
+Difficulty: **Medium**
+
+
+Given a sorted array _nums_, remove the duplicates such that duplicates appeared at most _twice_ and return the new length.
+
+Do not allocate extra space for another array, you must do this by **modifying the input array** with O(1) extra memory.
+
+**Example 1:**
+
+```
+Given nums = [1,1,1,2,2,3],
+
+Your function should return length = 5, with the first five elements of nums being 1, 1, 2, 2 and 3 respectively.
+
+It doesn't matter what you leave beyond the returned length.
+```
+
+**Example 2:**
+
+```
+Given nums = [0,0,1,1,1,1,2,3,3],
+
+Your function should return length = 7, with the first seven elements of nums being modified to 0, 0, 1, 1, 2, 3 and 3 respectively.
+
+It doesn't matter what values are set beyond the returned length.
+```
+
+**Clarification:**
+
+Confused why the returned value is an integer but your answer is an array?
+
+Note that the input array is passed in by **reference**, which means modification to the input array will be known to the caller as well.
+
+Internally you can think of this:
+
+```
+// nums is passed in by reference. (i.e., without making a copy)
+int len = removeDuplicates(nums);
+
+// any modification to nums in your function would be known by the caller.
+// using the length returned by your function, it prints the first len elements.
+for (int i = 0; i < len; i++) {
+    print(nums[i]);
+}
+```
+
+##### Discussion
+看著當初的自己竟然大言不慚的用了del
+甚感抱歉
+這類型的題目
+高手會使用slow pointer的技巧
+從index 2開始掃，因為index小於2一定合法
+接下來就去看目前這個位置的前兩個跟nums[idx]有沒有一樣
+一樣的話代表放滿了  就continue
+不一樣代表可以繼續塞
+把nums[slow_pointer]的值更新為nums[idx]
+slow_pointer += 1
+之所以只要檢查nums[slow_pointer-2]是因為他一定遞增
+所以只要nums[slow_pointer-2] == nums[idx]
+因為遞增的特性
+nums[slow pointer-1]必定為相同值
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def removeDuplicates(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        i = 0
+        while i < len(nums):
+            if i >= 2 and nums[i] == nums[i-1] and nums[i] == nums[i-2]:
+                del nums[i]
+            else:
+                i+=1
+        
+                
+```
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def removeDuplicates(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
+        # 1 1 2 -> OK
+        # 1 2 2 -> OK
+        # 2 2 2 -> Not OK
+        slow_pointer, idx = 2, 2
+        for idx in xrange(2, len(nums)):
+            if nums[idx] != nums[slow_pointer-2]:
+                nums[slow_pointer] = nums[idx]
+                slow_pointer += 1
+        return slow_pointer
+        
+                
+```
+
 ## <a name="double_pointers"></a>Double Pointers
 ### [11\. Container With Most Water](https://leetcode.com/problems/container-with-most-water/)
 
@@ -1783,31 +2601,31 @@ Output: [-1,-1]
 ```
 
 ##### Discussion
-經典的binary search有重複element尋找左右界的題目\
-用了兩個binary search去找\
-針對左界，就算找到了，也往左邊看看有沒有更左的解\
-針對右界，就算找到了，也往右邊看看有沒有更右的解\
-看起來比較醜但直觀\
+經典的binary search有重複element尋找左右界的題目
+用了兩個binary search去找
+針對左界，就算找到了，也往左邊看看有沒有更左的解
+針對右界，就算找到了，也往右邊看看有沒有更右的解
+看起來比較醜但直觀
 
-Solution 2參考了高手的做法\
-不需要一直更新index1, index2\
-概念如下\
-針對左界，如果發現target大於nums[mid]\
-這很明顯的我們要的數在右邊\
-但是針對等於或是小於，則是都往左邊繼續搜\
-右界以此類推\
+Solution 2參考了高手的做法
+不需要一直更新index1, index2
+概念如下
+針對左界，如果發現target大於nums[mid]
+這很明顯的我們要的數在右邊
+但是針對等於或是小於，則是都往左邊繼續搜
+右界以此類推
 \
-最終如果這個數有找到的話\
-index1, index2分別會是左右界\
-如果只有一個數被找到則index1 == index2\
-但是如果完全找不到\
-理論上index1會是離target最近但是大於target的數\
-index2則是離target最近但小於target的數\
-舉例來說\
-[5,7,7,8,8,10]\
-6\
-這樣的測資下idx1 = 1, idx2 = 0\
-按照題意 return [-1, -1]\
+最終如果這個數有找到的話
+index1, index2分別會是左右界
+如果只有一個數被找到則index1 == index2
+但是如果完全找不到
+理論上index1會是離target最近但是大於target的數
+index2則是離target最近但小於target的數
+舉例來說
+[5,7,7,8,8,10]
+6
+這樣的測資下idx1 = 1, idx2 = 0
+按照題意 return [-1, -1]
 
 #### Solution
 
@@ -2635,4 +3453,472 @@ class Solution(object):
                 
         return dp[target]
         
+```
+
+### [78\. Subsets](https://leetcode.com/problems/subsets/)
+
+Difficulty: **Medium**
+
+
+Given a set of **distinct** integers, _nums_, return all possible subsets (the power set).
+
+**Note:** The solution set must not contain duplicate subsets.
+
+**Example:**
+
+```
+Input: nums = [1,2,3]
+Output:
+[
+  [3],
+  [1],
+  [2],
+  [1,2,3],
+  [1,3],
+  [2,3],
+  [1,2],
+  []
+]
+```
+
+##### Discussion
+直接代公式
+結案，我愛backtracking
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    
+    def helper(self, start, nums, current, ans):
+        
+        ans.append(current)
+        
+        for idx in xrange(start, len(nums)):
+            self.helper(idx+1, nums, current+[nums[idx]], ans)
+        
+        
+    def subsets(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: List[List[int]]
+        """
+        ans = []
+        
+        self.helper(0, nums, [], ans)
+        return ans
+        
+```
+
+### [90\. Subsets II](https://leetcode.com/problems/subsets-ii/)
+
+Difficulty: **Medium**
+
+
+Given a collection of integers that might contain duplicates, **_nums_**, return all possible subsets (the power set).
+
+**Note:** The solution set must not contain duplicate subsets.
+
+**Example:**
+
+```
+Input: [1,2,2]
+Output:
+[
+  [2],
+  [1],
+  [1,2,2],
+  [2,2],
+  [1,2],
+  []
+]
+```
+
+##### Discussion
+帶公式+Tip4，人生是美好的
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def helper(self, start, nums, current, ans):
+        ans.append(current)
+        
+        for idx in xrange(start, len(nums)):
+            if idx > start and nums[idx] == nums[idx-1]: continue
+            self.helper(idx+1, nums, current+[nums[idx]], ans)
+    
+    def subsetsWithDup(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: List[List[int]]
+        """
+        nums.sort()
+        ans = []
+        self.helper(0, nums, [], ans)
+        return ans
+    
+```
+
+## <a name="stack"></a>Stack
+### [739\. Daily Temperatures](https://leetcode.com/problems/daily-temperatures/)
+
+Difficulty: **Medium**
+
+
+Given a list of daily temperatures `T`, return a list such that, for each day in the input, tells you how many days you would have to wait until a warmer temperature. If there is no future day for which this is possible, put `0` instead.
+
+For example, given the list of temperatures `T = [73, 74, 75, 71, 69, 72, 76, 73]`, your output should be `[1, 1, 4, 2, 1, 1, 0, 0]`.
+
+**Note:** The length of `temperatures` will be in the range `[1, 30000]`. Each temperature will be an integer in the range `[30, 100]`.
+
+##### Discussion
+stack標準題，只要過去的資訊，需要等未來的某個事件發生才需要被處理，可以試試看stack
+以這題來說，他需要找到遞減的天數，但是在值變大的時候，不知道距離多少
+所以先推進stack，直到值變小的那天，再看看是否要pop，如果原本的值更小，那就不pop
+讓天數繼續累積
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def dailyTemperatures(self, T):
+        """
+        :type T: List[int]
+        :rtype: List[int]
+        """
+        ans = [None] * len(T)
+        stack = []
+        for i, n in enumerate(T):      
+            while stack:
+                top = stack[-1]
+                if top[1] < n:
+                    ans[top[0]] = i - top[0]
+                    del stack[-1]
+                else:
+                    break
+            stack.append([i, n])
+        for v in stack:
+            ans[v[0]] = 0
+        
+        return ans
+```
+### [155\. Min Stack](https://leetcode.com/problems/min-stack/)
+
+Difficulty: **Easy**
+
+
+Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.
+
+*   push(x) -- Push element x onto stack.
+*   pop() -- Removes the element on top of the stack.
+*   top() -- Get the top element.
+*   getMin() -- Retrieve the minimum element in the stack.
+
+**Example:**
+
+```
+MinStack minStack = new MinStack();
+minStack.push(-2);
+minStack.push(0);
+minStack.push(-3);
+minStack.getMin();   --> Returns -3.
+minStack.pop();
+minStack.top();      --> Returns 0.
+minStack.getMin();   --> Returns -2.
+```
+##### Discussion
+需要在O(1)得到stack最小的值，只要把推入stack的時候的min一起推就可以
+
+#### Solution
+
+Language: **Python**
+
+```python
+class MinStack(object):
+​
+    def __init__(self):
+        """
+        initialize your data structure here.
+        """
+        self.stack = []
+​
+    def push(self, x):
+        """
+        :type x: int
+        :rtype: None
+        """
+        if not self.stack:
+            self.stack.append((x, x))
+        else:
+            self.stack.append((x, min(x, self.stack[-1][1])))
+​
+    def pop(self):
+        """
+        :rtype: None
+        """
+        del self.stack[-1]
+​
+    def top(self):
+        """
+        :rtype: int
+        """
+        if not self.stack: 
+            return None
+        return self.stack[-1][0]
+​
+    def getMin(self):
+        """
+        :rtype: int
+        """
+        if not self.stack:
+            return None
+        return self.stack[-1][1]
+​
+    def top(self):
+        """
+        :rtype: int
+        """
+        if not self.stack: 
+            return None
+        return self.stack[-1][0]
+​
+    def getMin(self):
+        """
+        :rtype: int
+```
+
+### [20\. Valid Parentheses](https://leetcode.com/problems/valid-parentheses/)
+
+Difficulty: **Easy**
+
+
+Given a string containing just the characters `'('`, `')'`, `'{'`, `'}'`, `'['` and `']'`, determine if the input string is valid.
+
+An input string is valid if:
+
+1.  Open brackets must be closed by the same type of brackets.
+2.  Open brackets must be closed in the correct order.
+
+Note that an empty string is also considered valid.
+
+**Example 1:**
+
+```
+Input: "()"
+Output: true
+```
+
+**Example 2:**
+
+```
+Input: "()[]{}"
+Output: true
+```
+
+**Example 3:**
+
+```
+Input: "(]"
+Output: false
+```
+
+**Example 4:**
+
+```
+Input: "([)]"
+Output: false
+```
+
+**Example 5:**
+
+```
+Input: "{[]}"
+Output: true
+```
+##### Discussion
+經典的stack題，當右括號出現時，stack的頂如果不是對應的左括號，就不是valid
+最後記得要檢查stack是不是空的
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def isValid(self, s):
+        """
+        :type s: str
+        :rtype: bool
+        """
+        stack, mapping = [], {}
+        mapping['('] = ')'
+        mapping['['] = ']'
+        mapping['{'] = '}'
+        for c in s:
+            if c in ['(', '[', '{']:
+                stack.append(c)
+            else:
+                if not stack or mapping[stack[-1]] != c:
+                    return False
+                else:
+                    stack.pop()
+        return len(stack) == 0
+```
+
+### [150\. Evaluate Reverse Polish Notation](https://leetcode.com/problems/evaluate-reverse-polish-notation/)
+
+Difficulty: **Medium**
+
+
+Evaluate the value of an arithmetic expression in .
+
+Valid operators are `+`, `-`, `*`, `/`. Each operand may be an integer or another expression.
+
+**Note:**
+
+*   Division between two integers should truncate toward zero.
+*   The given RPN expression is always valid. That means the expression would always evaluate to a result and there won't be any divide by zero operation.
+
+**Example 1:**
+
+```
+Input: ["2", "1", "+", "3", "*"]
+Output: 9
+Explanation: ((2 + 1) * 3) = 9
+```
+
+**Example 2:**
+
+```
+Input: ["4", "13", "5", "/", "+"]
+Output: 6
+Explanation: (4 + (13 / 5)) = 6
+```
+
+**Example 3:**
+
+```
+Input: ["10", "6", "9", "3", "+", "-11", "*", "/", "*", "17", "+", "5", "+"]
+Output: 22
+Explanation: 
+  ((10 * (6 / ((9 + 3) * -11))) + 17) + 5
+= ((10 * (6 / (12 * -11))) + 17) + 5
+= ((10 * (6 / -132)) + 17) + 5
+= ((10 * 0) + 17) + 5
+= (0 + 17) + 5
+= 17 + 5
+= 22
+```
+
+##### Discussion
+**Division between two integers should truncate toward zero.**
+寫法為int(float(x)/y)
+
+#### Solution
+
+Language: **Python**
+
+```python
+class Solution(object):
+    def evalRPN(self, tokens):
+        """
+        :type tokens: List[str]
+        :rtype: int
+        """
+        stack = []
+        for token in tokens:
+            if token in ['+', '-', '*', '/']:
+                x, y = stack[-2], stack[-1]
+                stack.pop()
+                stack.pop()
+                if token == '+':
+                    stack.append(x+y)
+                elif token == '-':
+                    stack.append(x-y)
+                elif token == '*':
+                    stack.append(x*y)
+                else:
+                    stack.append(int(float(x)/y))
+            else:
+                stack.append(int(token))
+            
+        return stack[0]
+```
+### [622\. Design Circular Queue](https://leetcode.com/problems/design-circular-queue/)
+
+Difficulty: **Medium**
+
+
+Design your implementation of the circular queue. The circular queue is a linear data structure in which the operations are performed based on FIFO (First In First Out) principle and the last position is connected back to the first position to make a circle. It is also called "Ring Buffer".
+
+One of the benefits of the circular queue is that we can make use of the spaces in front of the queue. In a normal queue, once the queue becomes full, we cannot insert the next element even if there is a space in front of the queue. But using the circular queue, we can use the space to store new values.
+
+Your implementation should support following operations:
+
+*   `MyCircularQueue(k)`: Constructor, set the size of the queue to be k.
+*   `Front`: Get the front item from the queue. If the queue is empty, return -1.
+*   `Rear`: Get the last item from the queue. If the queue is empty, return -1.
+*   `enQueue(value)`: Insert an element into the circular queue. Return true if the operation is successful.
+*   `deQueue()`: Delete an element from the circular queue. Return true if the operation is successful.
+*   `isEmpty()`: Checks whether the circular queue is empty or not.
+*   `isFull()`: Checks whether the circular queue is full or not.
+
+**Example:**
+
+```
+MyCircularQueue circularQueue = new MyCircularQueue(3); // set the size to be 3
+circularQueue.enQueue(1);  // return true
+circularQueue.enQueue(2);  // return true
+circularQueue.enQueue(3);  // return true
+circularQueue.enQueue(4);  // return false, the queue is full
+circularQueue.Rear();  // return 3
+circularQueue.isFull();  // return true
+circularQueue.deQueue();  // return true
+circularQueue.enQueue(4);  // return true
+circularQueue.Rear();  // return 4
+```
+
+**Note:**
+
+*   All values will be in the range of [0, 1000].
+*   The number of operations will be in the range of [1, 1000].
+*   Please do not use the built-in Queue library.
+
+##### Discussion
+有個count會更好用
+
+#### Solution
+
+Language: **Python**
+
+```python
+class MyCircularQueue(object):
+​
+    def __init__(self, k):
+        """
+        Initialize your data structure here. Set the size of the queue to be k.
+        :type k: int
+        """
+        self.queue = [None] * k
+        self.head = 0
+        self.tail = 0
+        self.count = 0
+        self.k = k
+​
+    def enQueue(self, value):
+        """
+        Insert an element into the circular queue. Return true if the operation is successful.
+        :type value: int
+        :rtype: bool
+        """
+        if self.count != self.k:
+            self.queue[self.tail] = value
+            self.tail = (self.tail + 1) % self.k
 ```
