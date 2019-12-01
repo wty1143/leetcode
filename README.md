@@ -13,7 +13,7 @@
 - String
 - Binary Search
 - Divide and Conquer
-- Dynamic Programming
+- Dynamic Programming(#dp)
 - Backtracking
 - Stack
 - Heap
@@ -326,3 +326,5 @@ class Solution(object):
                
         return False
 ```
+
+<a name="dp">## Dynamic Programming
